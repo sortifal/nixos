@@ -59,7 +59,7 @@
     fontconfig = {
       enable = true;
       defaultFonts = {
-        monospace = [ "DejaVu Sans Mono" ];
+        monospace = [ "JetBrains Mono" ];
         sansSerif = [ "DejaVu Sans" ];
         serif = [ "DejaVu Serif" ];
       };
@@ -96,6 +96,7 @@
     imagemagick
     conky
     opencode
+    jetbrains-mono
   ];
 
   system.stateVersion = "25.11";
