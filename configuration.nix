@@ -1,0 +1,102 @@
+# Basic NixOS configuration
+# Simple setup for i3, alacritty, and vim
+
+{ config, lib, pkgs, ... }:
+
+{
+  imports =
+    [ # Include results of hardware scan.
+      ./hardware-configuration.nix
+    ];
+
+  # Boot configuration
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+
+  # Networking
+  networking.networkmanager.enable = true;
+
+  # Time zone
+  time.timeZone = "Europe/Amsterdam";
+
+  # Locale
+  i18n.defaultLocale = "en_US.UTF-8";
+
+  # X11 and i3
+  services.xserver.enable = true;
+  services.xserver.displayManager.lightdm.enable = true;
+  services.xserver.windowManager.i3 = {
+    enable = true;
+    package = pkgs.i3;
+    configFile = /etc/nixos/i3.conf;
+  };
+
+  # Input devices
+  services.libinput.enable = true;
+
+  # Sound
+  services.pipewire = {
+    enable = true;
+    pulse.enable = true;
+  };
+
+  # Fish shell
+  programs.fish.enable = true;
+
+  # User account
+  users.users.sorti = {
+     description = "Sorti-";
+     isNormalUser = true;
+     extraGroups = [ "networkmanager" "wheel" "audio" "video" ];
+     shell = pkgs.fish;
+     initialPassword = "pass";
+   };
+
+  # Fonts
+  fonts = {
+    enableDefaultPackages = true;
+    fontconfig = {
+      enable = true;
+      defaultFonts = {
+        monospace = [ "DejaVu Sans Mono" ];
+        sansSerif = [ "DejaVu Sans" ];
+        serif = [ "DejaVu Serif" ];
+      };
+    };
+  };
+
+  # System packages
+  environment.systemPackages = with pkgs; [
+    vim
+    alacritty
+    git
+    wget
+    firefox
+    i3
+    i3status
+    i3lock
+    dmenu
+    picom
+    rofi
+    nitrogen
+    feh
+    scrot
+    brightnessctl
+    pamixer
+    networkmanagerapplet
+    blueman
+    pavucontrol
+    htop
+    tree
+    unzip
+    ripgrep
+    fd
+    ranger
+    imagemagick
+    conky
+    opencode
+  ];
+
+  system.stateVersion = "25.11";
+}
