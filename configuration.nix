@@ -7,6 +7,8 @@
   imports =
     [ # Include results of hardware scan.
       ./hardware-configuration.nix
+      <home-manager/nixos>
+      ./home-manager.nix
     ];
 
   # Boot configuration
@@ -35,6 +37,11 @@
   # Input devices
   services.libinput.enable = true;
 
+  # YubiKey
+  services.pcscd.enable = true;
+  services.udev.packages = [ pkgs.yubikey-personalization ];
+  hardware.gpgSmartcards.enable = true;
+
   # Sound
   services.pipewire = {
     enable = true;
@@ -48,7 +55,7 @@
   users.users.sorti = {
      description = "Sorti-";
      isNormalUser = true;
-     extraGroups = [ "networkmanager" "wheel" "audio" "video" ];
+      extraGroups = [ "networkmanager" "wheel" "audio" "video" "plugdev" ];
      shell = pkgs.fish;
      initialPassword = "pass";
    };
@@ -72,7 +79,6 @@
     alacritty
     git
     wget
-    firefox
     i3
     i3status
     i3lock
@@ -97,6 +103,8 @@
     conky
     opencode
     jetbrains-mono
+    yubikey-manager
+    yubioath-flutter
   ];
 
   system.stateVersion = "25.11";
