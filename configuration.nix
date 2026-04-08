@@ -1,5 +1,5 @@
 # Basic NixOS configuration
-# Simple setup for i3, alacritty, and vim
+# Simple setup for Hyprland, alacritty, and vim
 
 { config, lib, pkgs, ... }:
 
@@ -7,7 +7,21 @@
   imports =
     [ # Include results of hardware scan.
       ./hardware-configuration.nix
+	<home-manager/nixos>
     ];
+  
+  # Home Manager setup
+  home-manager = {
+    users.sorti = { pkgs, ... }: {
+      wayland.windowManager.hyprland = {
+        enable = true;
+        settings = {
+          "$terminal" = "alacritty";
+        };
+      };
+      home.stateVersion = "25.11";
+    };
+  };
 
   # Boot configuration
   boot.loader.systemd-boot.enable = true;
@@ -23,14 +37,9 @@
   # Locale
   i18n.defaultLocale = "en_US.UTF-8";
 
-  # X11 and i3
-  services.xserver.enable = true;
-  services.xserver.displayManager.lightdm.enable = true;
-  services.xserver.windowManager.i3 = {
-    enable = true;
-    package = pkgs.i3;
-    configFile = /etc/nixos/i3.conf;
-  };
+  # Hyprland (Wayland)
+  programs.hyprland.enable = true;
+  services.displayManager.gdm.enable = true;
 
   # Input devices
   services.libinput.enable = true;
@@ -59,11 +68,14 @@
     fontconfig = {
       enable = true;
       defaultFonts = {
-        monospace = [ "DejaVu Sans Mono" ];
+        monospace = [ "JetBrainsMono Nerd Font" ];
         sansSerif = [ "DejaVu Sans" ];
         serif = [ "DejaVu Serif" ];
       };
     };
+    packages = with pkgs; [
+      nerd-fonts.jetbrains-mono
+    ];
   };
 
   # System packages
@@ -73,20 +85,17 @@
     git
     wget
     firefox
-    i3
-    i3status
-    i3lock
-    dmenu
-    picom
+    hyprland
+    waybar
     rofi
-    nitrogen
-    feh
-    scrot
+    wlogout
+    swww
+    slurp
+    grim
     brightnessctl
     pamixer
     networkmanagerapplet
     blueman
-    pavucontrol
     htop
     tree
     unzip
@@ -96,7 +105,10 @@
     imagemagick
     conky
     opencode
+    libfido2
+    yubikey-manager
   ];
-
+  services.udev.packages = [ pkgs.yubikey-personalization ];
+  services.pcscd.enable = true;
   system.stateVersion = "25.11";
 }
