@@ -106,6 +106,7 @@
     imagemagick
     conky
     opencode
+    starship
     yubikey-manager
     yubioath-flutter
   ];

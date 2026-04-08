@@ -7,7 +7,10 @@
     home.stateVersion = "25.11";
 
     imports = [
-      ./home/packages.nix
+      ./home/firefox.nix
+      ./home/alacritty.nix
+      ./home/starship.nix
+      ./home/fish.nix
     ];
 
     programs.home-manager.enable = true;
