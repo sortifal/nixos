@@ -25,14 +25,13 @@
   # Locale
   i18n.defaultLocale = "en_US.UTF-8";
 
-  # X11 and i3
+  # X11 and Hyprland
   services.xserver.enable = true;
-  services.xserver.displayManager.lightdm.enable = true;
-  services.xserver.windowManager.i3 = {
+  programs.hyprland = {
     enable = true;
-    package = pkgs.i3;
-    configFile = /etc/nixos/i3.conf;
+    withUWSM = true;
   };
+  services.uwsm.enable = true;
 
   # Input devices
   services.libinput.enable = true;
@@ -83,15 +82,13 @@
     alacritty
     git
     wget
-    i3
-    i3status
-    i3lock
-    dmenu
-    picom
-    rofi
-    nitrogen
-    feh
-    scrot
+    hyprland
+    waybar
+    wofi
+    grim
+    slurp
+    swappy
+    wl-clipboard
     brightnessctl
     pamixer
     networkmanagerapplet
@@ -104,7 +101,6 @@
     fd
     ranger
     imagemagick
-    conky
     opencode
     starship
     yubikey-manager

@@ -11,6 +11,7 @@
       ./home/alacritty.nix
       ./home/starship.nix
       ./home/fish.nix
+      ./home/hyprland.nix
     ];
 
     programs.home-manager.enable = true;
