@@ -8,7 +8,7 @@
         padding = { x = 10; y = 10; };
         decorations = "full";
         dynamic_title = true;
-        opacity = 0.95;
+          opacity = 0.75;
         startup_mode = "Windowed";
         dimensions = { columns = 80; lines = 24; };
       };
@@ -19,7 +19,7 @@
       };
 
       font = {
-        size = 7.0;
+        size = 9.0;
 
         offset = { x = 0; y = 0; };
         glyph_offset = { x = 0; y = 0; };

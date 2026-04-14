@@ -1,9 +1,11 @@
 # Basic NixOS configuration
-# Simple setup for i3, alacritty, and vim
+# Hyprland setup with Home Manager
 
 { config, lib, pkgs, ... }:
 
 {
+  nixpkgs.config.allowUnfree = true;
+
   imports =
     [ # Include results of hardware scan.
       ./hardware-configuration.nix
@@ -25,13 +27,21 @@
   # Locale
   i18n.defaultLocale = "en_US.UTF-8";
 
-  # X11 and Hyprland
-  services.xserver.enable = true;
+  # Display manager
+  services.displayManager.sddm = {
+    enable = true;
+    wayland.enable = true;
+    theme = "pixie";
+  };
+
+  # Hyprland
   programs.hyprland = {
     enable = true;
-    withUWSM = true;
   };
-  services.uwsm.enable = true;
+
+  # Bluetooth
+  hardware.bluetooth.enable = true;
+  services.blueman.enable = true;
 
   # Input devices
   services.libinput.enable = true;
@@ -78,19 +88,46 @@
 
   # System packages
   environment.systemPackages = with pkgs; [
+    (pkgs.stdenv.mkDerivation {
+      name = "pixie-sddm";
+      src = pkgs.fetchFromGitHub {
+        owner = "xCaptaiN09";
+        repo = "pixie-sddm";
+        rev = "main";
+        sha256 = "09aixg5xphjfrdbh3ifqfp3wrmlxgdwsy5ndc1iv945pzhzxcj1n";
+      };
+      buildInputs = [ pkgs.qt6.qtdeclarative pkgs.qt6.qtsvg ];
+      dontWrapQtApps = true;
+      installPhase = ''
+        mkdir -p $out/share/sddm/themes/pixie
+        cp -r * $out/share/sddm/themes/pixie/
+      '';
+    })
     vim
+    neovim
+    vscode
+    wireguard-tools
+    gnumake
+    clojure
+    leiningen
+    clj-kondo
+    obsidian
+    bluez
     alacritty
     git
     wget
+    dmenu
+    ansible
     hyprland
     waybar
     wofi
+    hyprpaper
+    pamixer
     grim
     slurp
     swappy
     wl-clipboard
     brightnessctl
-    pamixer
     networkmanagerapplet
     blueman
     pavucontrol
@@ -101,11 +138,14 @@
     fd
     ranger
     imagemagick
+    neofetch
     opencode
     starship
     yubikey-manager
     yubioath-flutter
-  ];
+    docker
+    podman
+ ];
 
   system.stateVersion = "25.11";
 }

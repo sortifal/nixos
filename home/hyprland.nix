@@ -2,11 +2,19 @@
 
 let
   wallpaper = pkgs.fetchurl {
-    url = "https://raw.githubusercontent.com/whoisYoges/lwalpapers/PicturesOnly/wallpapers/b-002.jpg";
-    sha256 = "1g7nv6d28kvi4p3gq71jshdzaa24ainbjhcvbpsfm5winrq5sr9l";
+    url = "https://github.com/comfysage/wallpapers/raw/mega/frieren/5ce40a596e06c13cf68ef474cd06ad783d63193a.jpg";
+    sha256 = "17k1cfpdhvrhxznlkybks5184bps9q6wd5g29d5xbrhwr21pv20l";
   };
 in
 {
+  xdg.configFile."hypr/hyprpaper.conf".text = ''
+    preload = ~/.wallpaper
+    wallpaper = eDP-1,~/.wallpaper
+    wallpaper = HDMI-A-1,~/.wallpaper
+    wallpaper = DP-1,~/.wallpaper
+    ipc = on
+  '';
+
   home.file.".wallpaper".source = wallpaper;
 
   wayland.windowManager.hyprland = {
@@ -23,6 +31,7 @@ in
 
       exec-once = [
         "waybar"
+        "hyprpaper"
         "nm-applet"
       ];
 
@@ -48,10 +57,12 @@ in
           size = 3;
           passes = 1;
         };
-        drop_shadow = true;
-        shadow_range = 4;
-        shadow_render_power = 3;
-        "col.shadow" = "rgba(0a0e0aaa)";
+        shadow = {
+          enabled = true;
+          range = 4;
+          render_power = 3;
+          color = "rgba(0a0e0aaa)";
+        };
       };
 
       animations = {
@@ -79,6 +90,7 @@ in
       misc = {
         force_default_wallpaper = 0;
         disable_hyprland_logo = true;
+        session_lock_xray = true;
       };
 
       windowrulev2 = [
@@ -92,8 +104,10 @@ in
         "$mod, M, exit,"
         "$mod, V, togglefloating,"
         "$mod, F, fullscreen,"
-        "$mod, D, exec, $menu"
+        "$mod, D, exec, wofi --show drun"
         "$mod, P, exec, grim -g \"$(slurp)\" - | swappy -f -"
+        "$mod, L, exec, hyprlock"
+        "CTRL SHIFT, L, exec, hyprlock"
 
         "$mod, h, movefocus, l"
         "$mod, l, movefocus, r"
@@ -135,6 +149,16 @@ in
 
         "$mod SHIFT, left, movetoworkspace, e-1"
         "$mod SHIFT, right, movetoworkspace, e+1"
+
+        ", XF86AudioRaiseVolume, exec, pamixer -u -i 5"
+        ", XF86AudioLowerVolume, exec, pamixer -u -d 5"
+        ", XF86AudioMute, exec, pamixer -t"
+        ", XF86AudioMicMute, exec, pamixer --default-source -t"
+        ", XF86MonBrightnessUp, exec, brightnessctl set +5%"
+        ", XF86MonBrightnessDown, exec, brightnessctl set 5%-"
+        ", XF86AudioPlay, exec, playerctl play-pause"
+        ", XF86AudioNext, exec, playerctl next"
+        ", XF86AudioPrev, exec, playerctl previous"
       ];
 
       bindm = [

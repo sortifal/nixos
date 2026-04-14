@@ -12,6 +12,10 @@
       ./home/starship.nix
       ./home/fish.nix
       ./home/hyprland.nix
+      ./home/waybar.nix
+      ./home/hyprlock.nix
+      ./home/ssh.nix
+      ./home/nvim.nix
     ];
 
     programs.home-manager.enable = true;
