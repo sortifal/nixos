@@ -113,6 +113,7 @@
     clj-kondo
     obsidian
     bluez
+    bluetuith
     alacritty
     git
     wget
