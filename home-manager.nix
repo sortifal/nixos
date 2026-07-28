@@ -16,6 +16,7 @@
       ./home/hyprlock.nix
       ./home/ssh.nix
       ./home/nvim.nix
+      ./home/rofi.nix
     ];
 
     programs.home-manager.enable = true;

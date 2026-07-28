@@ -96,6 +96,10 @@ in
       windowrulev2 = [
         "float, title:^(pavucontrol)$"
         "float, title:^(blueman-manager)$"
+        "workspace 9 silent, class:^(obsidian)$"
+        "workspace 8 silent, class:^(code-url-handler)$"
+        "workspace 8 silent, class:^(Code)$"
+        "workspace 8 silent, class:^(code-oss)$"
       ];
 
       bind = [
@@ -104,10 +108,13 @@ in
         "$mod, M, exit,"
         "$mod, V, togglefloating,"
         "$mod, F, fullscreen,"
-        "$mod, D, exec, wofi --show drun"
+        "$mod, D, exec, rofi -show drun"
         "$mod, P, exec, grim -g \"$(slurp)\" - | swappy -f -"
         "$mod, L, exec, hyprlock"
         "CTRL SHIFT, L, exec, hyprlock"
+
+        "$mod, O, workspace, 9"
+        "$mod, C, workspace, 8"
 
         "$mod, h, movefocus, l"
         "$mod, l, movefocus, r"
@@ -159,6 +166,8 @@ in
         ", XF86AudioPlay, exec, playerctl play-pause"
         ", XF86AudioNext, exec, playerctl next"
         ", XF86AudioPrev, exec, playerctl previous"
+        ", switch:Lid Switch on, exec, hyprlock"
+        ", switch:Lid Switch off, exec, hyprlock"
       ];
 
       bindm = [

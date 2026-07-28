@@ -37,6 +37,8 @@
       gb = "git branch";
       vim = "nvim";
       vi  = "nvim";
+      dev = "nix-shell ~/.config/nixpkgs/dev-shell.nix";
+      esp32 = "pio";
     };
 
     shellInit = ''
