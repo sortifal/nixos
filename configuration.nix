@@ -1,13 +1,15 @@
 # Basic NixOS configuration
 # Simple setup for i3, Hyprland, alacritty, and vim
+#
+# This repo intentionally omits hardware-configuration.nix, since it is
+# machine-specific and generated locally. Run `nixos-generate-config` on
+# the target machine to produce one, then import it above.
 
 { config, lib, pkgs, ... }:
 
 {
   imports =
-    [ # Include results of hardware scan.
-      ./hardware-configuration.nix
-      <home-manager/nixos>
+    [ <home-manager/nixos>
       ./home-manager.nix
     ];
 
@@ -81,12 +83,12 @@
 
   # User account
   users.users.sorti = {
-     description = "Sorti-";
-     isNormalUser = true;
-      extraGroups = [ "networkmanager" "wheel" "audio" "video" "plugdev" ];
-     shell = pkgs.fish;
-     initialPassword = "pass";
-   };
+    description = "Sorti-";
+    isNormalUser = true;
+    extraGroups = [ "networkmanager" "wheel" "audio" "video" "plugdev" ];
+    shell = pkgs.fish;
+    initialPassword = "pass";
+  };
 
   # Fonts
   fonts = {
