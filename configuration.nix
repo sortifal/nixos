@@ -29,6 +29,7 @@
   # state on some AMD iGPUs, causing a black screen after login even though
   # the Hyprland *session* itself is Wayland. Run the greeter on X11 as a
   # workaround; the selected session (Hyprland) is unaffected.
+  services.xserver.enable = true;
   services.displayManager.sddm.enable = true;
   services.displayManager.sddm.wayland.enable = false;
 
