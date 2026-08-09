@@ -12,15 +12,11 @@ let
   loginctl = "/run/current-system/sw/bin/loginctl";
   systemctl = "/run/current-system/sw/bin/systemctl";
 
-  # Upstream points hyprpaper and hyprlock at ~/background, a wallpaper they
-  # commit to their dotfiles repo. There is no image to inherit here, so a flat
-  # Macchiato-base canvas is generated instead - swap this derivation for a
-  # path to a real image to get a picture back.
-  wallpaper = pkgs.runCommand "macchiato-wallpaper.png" {
-    nativeBuildInputs = [ pkgs.imagemagick ];
-  } ''
-    magick -size 3840x2160 xc:'#24273a' $out
-  '';
+  # Upstream commits its wallpaper to the dotfiles repo as ~/background; this
+  # does the same with ./wallpaper.jpg at the repo root. Referencing it as a
+  # path literal copies it into the store, so hyprpaper and hyprlock both get
+  # a fixed path that exists on any machine this config is deployed to.
+  wallpaper = ../wallpaper.jpg;
 in
 {
   services.hyprpaper = {

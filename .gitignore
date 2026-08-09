@@ -1,1 +1,4 @@
 hardware-configuration.nix
+
+# WSL/NTFS alternate data streams, created when a file is copied in from Windows
+*:Zone.Identifier
