@@ -1,7 +1,7 @@
 # hyprpaper / hypridle / hyprlock - the companion daemons the upstream config
 # runs alongside Hyprland. They are wired up through home-manager's modules, so
-# each one gets a user service bound to hyprland-session.target.
-{ pkgs, ... }:
+# each one gets a user service bound to graphical-session.target.
+{ config, pkgs, ... }:
 
 let
   # hypridle runs as a systemd user unit with a minimal PATH, so everything it
@@ -12,20 +12,28 @@ let
   loginctl = "/run/current-system/sw/bin/loginctl";
   systemctl = "/run/current-system/sw/bin/systemctl";
 
-  # Upstream commits its wallpaper to the dotfiles repo as ~/background; this
-  # does the same with ./wallpaper.jpg at the repo root. Referencing it as a
-  # path literal copies it into the store, so hyprpaper and hyprlock both get
-  # a fixed path that exists on any machine this config is deployed to.
-  wallpaper = ../wallpaper.jpg;
+  # Upstream commits its wallpaper to the dotfiles repo and points hyprpaper
+  # and hyprlock at ~/background. This does the same with ./wallpaper.jpg at
+  # the repo root, installed to ~/Pictures/wallpaper.jpg below.
+  #
+  # The configs deliberately name that stable path rather than interpolating
+  # the store path directly. Both work, but a raw /nix/store/... string baked
+  # into hyprpaper.conf is opaque - you cannot tell by looking whether it
+  # still resolves, and a stale generation or an interrupted GC shows up as a
+  # silently missing wallpaper. ~/Pictures/wallpaper.jpg is a home-manager
+  # symlink into the store, so it stays declarative but can be checked with ls.
+  wallpaperPath = "${config.home.homeDirectory}/Pictures/wallpaper.jpg";
 in
 {
+  home.file."Pictures/wallpaper.jpg".source = ../wallpaper.jpg;
+
   services.hyprpaper = {
     enable = true;
     settings = {
       ipc = false;
       splash = false;
-      preload = [ "${wallpaper}" ];
-      wallpaper = [ ",${wallpaper}" ];
+      preload = [ wallpaperPath ];
+      wallpaper = [ ",${wallpaperPath}" ];
     };
   };
 
@@ -72,7 +80,7 @@ in
 
       background = [{
         monitor = "";
-        path = "${wallpaper}";
+        path = wallpaperPath;
         blur_passes = 2;
         color = "rgb(24273a)";
       }];
