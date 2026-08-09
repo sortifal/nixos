@@ -25,13 +25,18 @@
   i18n.defaultLocale = "en_US.UTF-8";
 
   # Display manager: SDDM reliably launches Wayland sessions, unlike lightdm.
-  # SDDM's own Wayland greeter can leave the DRM master handoff in a bad
-  # state on some AMD iGPUs, causing a black screen after login even though
-  # the Hyprland *session* itself is Wayland. Run the greeter on X11 as a
-  # workaround; the selected session (Hyprland) is unaffected.
+  # This machine only has one GPU (AMD iGPU, no discrete GPU). Running the
+  # SDDM *greeter* on Xorg (wayland.enable = false) was tried as a
+  # workaround for a black screen, but on single-GPU hardware an Xorg
+  # greeter frequently fails to release DRM master cleanly when handing off
+  # to a Wayland session (Hyprland) - it worked fine when launched manually
+  # from a TTY, which confirmed the driver/compositor were never the
+  # problem. Keep the greeter itself on Wayland so DRM master hands off
+  # cleanly to the Hyprland session. services.xserver.enable stays on since
+  # SDDM/Xwayland still rely on it for Xkb config.
   services.xserver.enable = true;
   services.displayManager.sddm.enable = true;
-  services.displayManager.sddm.wayland.enable = false;
+  services.displayManager.sddm.wayland.enable = true;
 
   # AMD iGPU (e.g. Ryzen 4000/5000 "Renoir/Cezanne" Vega graphics): load
   # amdgpu during initrd so KMS is active before the display manager starts,
