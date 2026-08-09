@@ -25,8 +25,18 @@
   i18n.defaultLocale = "en_US.UTF-8";
 
   # Display manager: SDDM reliably launches Wayland sessions, unlike lightdm.
+  # SDDM's own Wayland greeter can leave the DRM master handoff in a bad
+  # state on some AMD iGPUs, causing a black screen after login even though
+  # the Hyprland *session* itself is Wayland. Run the greeter on X11 as a
+  # workaround; the selected session (Hyprland) is unaffected.
   services.displayManager.sddm.enable = true;
-  services.displayManager.sddm.wayland.enable = true;
+  services.displayManager.sddm.wayland.enable = false;
+
+  # AMD iGPU (e.g. Ryzen 4000/5000 "Renoir/Cezanne" Vega graphics): load
+  # amdgpu during initrd so KMS is active before the display manager starts,
+  # avoiding a boot/login handoff race that can show up as a black screen.
+  boot.initrd.kernelModules = [ "amdgpu" ];
+  services.xserver.videoDrivers = [ "amdgpu" ];
 
   # Hyprland (Wayland)
   programs.hyprland = {
@@ -50,6 +60,9 @@
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";
     MOZ_ENABLE_WAYLAND = "1";
+    # Common fix for "Hyprland starts but nothing draws" on AMD iGPUs where
+    # the hardware cursor plane doesn't composite correctly.
+    WLR_NO_HARDWARE_CURSORS = "1";
   };
 
   # Input devices
