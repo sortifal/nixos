@@ -1,15 +1,31 @@
-name: Claude Code
+name: Claude Code Action
+
 on:
   issue_comment:
     types: [created]
-  issues:
-    types: [opened, assigned, labeled]
+  pull_request_review_comment:
+    types: [created]
+
 jobs:
   claude:
-    if: contains(github.event.comment.body, '@claude') || contains(github.event.issue.title, '@claude')
+    # Only run if a comment contains "@claude"
+    if: contains(github.event.comment.body, '@claude')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: anthropics/claude-code-action@v1
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          anthropic_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          fetch-depth: 1
+
+      - name: Run Claude Code Action
+        uses: anthropics/claude-code-action@v1
+        with:
+          # Use your subscription token instead of an API key
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
