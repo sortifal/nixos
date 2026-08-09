@@ -45,10 +45,17 @@
   # --sessions is required on NixOS: tuigreet's built-in defaults point at
   # /usr/share/{wayland-sessions,xsessions}, which do not exist here.
   #
-  # --cmd is the fallback when the session list is empty or nothing has been
-  # remembered yet. Without it tuigreet authenticates fine and then fails with
-  # "no command configured", which is what happened on the first login here.
-  # A selected session still takes priority over it.
+  # It deliberately points at sessionData.desktops rather than at
+  # /run/current-system/sw/share/wayland-sessions. With withUWSM enabled,
+  # nixpkgs puts only the UWSM entry in sessionPackages, but the *plain*
+  # hyprland.desktop still shows up under /run/current-system/sw because the
+  # Hyprland package is in systemPackages. Listing that directory would offer
+  # a non-UWSM session and bring the "not started with UWSM" warning back.
+  #
+  # --cmd is the fallback when nothing has been remembered yet; without it
+  # tuigreet authenticates fine and then fails with "no command configured".
+  # It mirrors the Exec line of hyprland-uwsm.desktop. A selected session
+  # still takes priority over it.
   services.greetd = {
     enable = true;
     settings.default_session = {
@@ -57,8 +64,8 @@
         "--time"
         "--remember"
         "--remember-session"
-        "--sessions /run/current-system/sw/share/wayland-sessions"
-        "--cmd Hyprland"
+        "--sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions"
+        "--cmd 'uwsm start -F -- /run/current-system/sw/bin/Hyprland'"
       ];
       user = "greeter";
     };
@@ -77,14 +84,15 @@
     enable = true;
     xwayland.enable = true;
 
-    # UWSM puts the session under systemd and is what the upstream config
-    # this repo tracks uses. Deliberately left off for now so that greetd is
-    # the only change being tested. To turn it on later: set this to true and
-    # set wayland.windowManager.hyprland.systemd.enable = false in
-    # home/hyprland.nix (UWSM manages the session target itself, so both
-    # doing it would double-activate). tuigreet will then offer
-    # "hyprland-uwsm" alongside "hyprland" in its session list.
-    # withUWSM = true;
+    # Hyprland warns on startup when it is not launched under UWSM. UWSM wraps
+    # the compositor in systemd units and starts graphical-session-pre.target,
+    # graphical-session.target and xdg-desktop-autostart.target itself, which
+    # Hyprland does not do on its own.
+    #
+    # This pairs with wayland.windowManager.hyprland.systemd.enable = false in
+    # home/hyprland.nix - both of them activating the session would be a
+    # double-activation. See the comment there.
+    withUWSM = true;
   };
 
   # hyprlock authenticates against PAM, which needs a system-level service

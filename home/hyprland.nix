@@ -51,6 +51,17 @@ in
     xwayland.enable = true;
     configType = "hyprlang";
 
+    # The session is launched through UWSM (programs.hyprland.withUWSM in
+    # configuration.nix), which imports the environment into systemd/D-Bus and
+    # starts graphical-session.target itself. Leaving this on would have
+    # home-manager separately start hyprland-session.target from an exec-once,
+    # activating the session twice.
+    #
+    # Nothing is lost by turning it off: home-manager's wayland services
+    # (hypridle, hyprpaper, dunst) bind to wayland.systemd.target, which
+    # defaults to graphical-session.target - the one UWSM brings up.
+    systemd.enable = false;
+
     settings = colorVariables // {
       "$mainMod" = "SUPER";
       "$terminal" = "alacritty";
