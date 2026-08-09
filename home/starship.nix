@@ -22,13 +22,13 @@
       git_status = { style = "bold red"; };
       cmd_duration = { min_time = 2000; format = "took [$duration](bold yellow) "; };
       nix_shell = { symbol = "❄ "; format = "[$symbol$state]($style) "; };
-      palette = "techno-naturalism";
-      palettes.techno-naturalism = {
-        cyan = "#5eead4";
-        green = "#4ade80";
-        red = "#e57373";
-        yellow = "#f0e68c";
-        purple = "#c084fc";
+      palette = "macchiato";
+      palettes.macchiato = {
+        cyan = "#8bd5ca";
+        green = "#a6da95";
+        red = "#ed8796";
+        yellow = "#eed49f";
+        purple = "#c6a0f6";
       };
     };
   };

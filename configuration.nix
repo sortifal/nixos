@@ -7,11 +7,17 @@
   imports =
     [ <home-manager/nixos>
       ./home-manager.nix
+      ./hardware-configuration.nix
     ];
 
   # Boot configuration
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  # Newest mainline is a recurring source of amdgpu hangs on iGPUs. Less
+  # likely now that the fault is known to be login-time only, but if the
+  # black screen somehow survives the greetd change, swap this for the
+  # default LTS kernel as the next single-variable test:
+  #   boot.kernelPackages = pkgs.linuxPackages;
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   # Networking
@@ -23,15 +29,75 @@
   # Locale
   i18n.defaultLocale = "en_US.UTF-8";
 
-  # Display manager: SDDM reliably launches Wayland sessions, unlike lightdm.
-  services.displayManager.sddm.enable = true;
-  services.displayManager.sddm.wayland.enable = true;
+  # Display manager: greetd + tuigreet.
+  #
+  # SDDM was tried with both greeter backends and black-screened either way.
+  # The failure is specifically the DRM master handoff at login: the greeter's
+  # compositor holds master and Hyprland cannot take it. Confirmed by the fact
+  # that the black screen only ever happens *after* login, and that launching
+  # Hyprland by hand from a TTY works every time - so the driver, the kernel
+  # and the compositor are all fine.
+  #
+  # tuigreet removes the whole class of problem: it is a terminal UI on a
+  # plain VT, so it never becomes DRM master and there is nothing to hand
+  # over. Hyprland is the first and only thing to touch the display.
+  #
+  # --sessions is required on NixOS: tuigreet's built-in defaults point at
+  # /usr/share/{wayland-sessions,xsessions}, which do not exist here.
+  #
+  # It deliberately points at sessionData.desktops rather than at
+  # /run/current-system/sw/share/wayland-sessions. With withUWSM enabled,
+  # nixpkgs puts only the UWSM entry in sessionPackages, but the *plain*
+  # hyprland.desktop still shows up under /run/current-system/sw because the
+  # Hyprland package is in systemPackages. Listing that directory would offer
+  # a non-UWSM session and bring the "not started with UWSM" warning back.
+  #
+  # --cmd is the fallback when nothing has been remembered yet; without it
+  # tuigreet authenticates fine and then fails with "no command configured".
+  # It mirrors the Exec line of hyprland-uwsm.desktop. A selected session
+  # still takes priority over it.
+  services.greetd = {
+    enable = true;
+    settings.default_session = {
+      command = lib.concatStringsSep " " [
+        "${pkgs.greetd.tuigreet}/bin/tuigreet"
+        "--time"
+        "--remember"
+        "--remember-session"
+        "--sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions"
+        "--cmd 'uwsm start -F -- /run/current-system/sw/bin/Hyprland'"
+      ];
+      user = "greeter";
+    };
+  };
+
+  # No X server at all now that SDDM is gone. Hyprland's Xwayland does not
+  # need services.xserver.enable, and keeping an unused X server around only
+  # adds another process that can contend for the GPU.
+
+  # AMD iGPU (e.g. Ryzen 4000/5000 "Renoir/Cezanne" Vega graphics): load
+  # amdgpu during initrd so KMS is active before anything tries to draw.
+  boot.initrd.kernelModules = [ "amdgpu" ];
 
   # Hyprland (Wayland)
   programs.hyprland = {
     enable = true;
     xwayland.enable = true;
+
+    # Hyprland warns on startup when it is not launched under UWSM. UWSM wraps
+    # the compositor in systemd units and starts graphical-session-pre.target,
+    # graphical-session.target and xdg-desktop-autostart.target itself, which
+    # Hyprland does not do on its own.
+    #
+    # This pairs with wayland.windowManager.hyprland.systemd.enable = false in
+    # home/hyprland.nix - both of them activating the session would be a
+    # double-activation. See the comment there.
+    withUWSM = true;
   };
+
+  # hyprlock authenticates against PAM, which needs a system-level service
+  # entry; the lock screen itself is configured in home/hyprland-services.nix.
+  programs.hyprlock.enable = true;
 
   xdg.portal = {
     enable = true;
@@ -49,6 +115,13 @@
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";
     MOZ_ENABLE_WAYLAND = "1";
+    # NOTE: this is a wlroots variable and Hyprland has not used wlroots
+    # since 0.42 (it renders through aquamarine now), so it is a no-op here
+    # and never had anything to do with the black screen. Kept only because
+    # it is harmless; the current equivalent, if software cursors are ever
+    # needed on this iGPU, is `cursor { no_hardware_cursors = true }` in the
+    # Hyprland config.
+    WLR_NO_HARDWARE_CURSORS = "1";
   };
 
   # Input devices
@@ -65,6 +138,11 @@
     pulse.enable = true;
   };
 
+  # Bluetooth - the Waybar bluetooth module, the blueman applet and the
+  # SUPER+SHIFT+Y toggle all need the stack actually running.
+  hardware.bluetooth.enable = true;
+  services.blueman.enable = true;
+
   # Fish shell
   programs.fish.enable = true;
 
@@ -77,12 +155,39 @@
     initialPassword = "pass";
   };
 
+  # Catppuccin Macchiato in the TTY, to match the desktop theme.
+  console = {
+    earlySetup = true;
+    colors = [
+      "24273a"
+      "ed8796"
+      "a6da95"
+      "eed49f"
+      "8aadf4"
+      "f5bde6"
+      "8bd5ca"
+      "cad3f5"
+      "5b6078"
+      "ed8796"
+      "a6da95"
+      "eed49f"
+      "8aadf4"
+      "f5bde6"
+      "8bd5ca"
+      "a5adcb"
+    ];
+  };
+
   # Fonts
   fonts = {
     enableDefaultPackages = true;
     packages = with pkgs; [
       jetbrains-mono
       nerd-fonts.jetbrains-mono
+      # Waybar's CSS falls back to these for the glyphs and emoji in its
+      # module formats.
+      nerd-fonts.symbols-only
+      noto-fonts-color-emoji
     ];
     fontconfig = {
       enable = true;
@@ -93,6 +198,11 @@
       };
     };
   };
+
+  # claude-code is unfree. Allow it by name rather than setting
+  # allowUnfree globally, so anything else unfree still has to be opted in.
+  nixpkgs.config.allowUnfreePredicate =
+    pkg: builtins.elem (lib.getName pkg) [ "claude-code" ];
 
   # System packages
   environment.systemPackages = with pkgs; [
@@ -114,6 +224,7 @@
     imagemagick
     conky
     opencode
+    claude-code
     starship
     yubikey-manager
     yubioath-flutter

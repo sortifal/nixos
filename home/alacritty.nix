@@ -8,7 +8,9 @@
         padding = { x = 10; y = 10; };
         decorations = "full";
         dynamic_title = true;
-        opacity = 0.95;
+        # Hyprland applies window opacity itself (decoration.active_opacity),
+        # so the terminal stays fully opaque here.
+        opacity = 1.0;
         startup_mode = "Windowed";
         dimensions = { columns = 80; lines = 24; };
       };
@@ -29,42 +31,44 @@
         bold_italic = { family = "JetBrainsMono Nerd Font"; style = "Bold Italic"; };
       };
 
+      # Catppuccin Macchiato
       colors = {
-        primary = { background = "#0a0e0a"; foreground = "#c4d4b8"; };
-        cursor = { text = "#0a0e0a"; cursor = "#4ade80"; };
+        primary = { background = "#24273a"; foreground = "#cad3f5"; };
+        cursor = { text = "#24273a"; cursor = "#f4dbd6"; };
+        selection = { text = "#24273a"; background = "#f4dbd6"; };
         normal = {
-          black = "#0a0e0a";
-          red = "#e57373";
-          green = "#4ade80";
-          yellow = "#f0e68c";
-          blue = "#7dd3fc";
-          magenta = "#c084fc";
-          cyan = "#5eead4";
-          white = "#c4d4b8";
+          black = "#494d64";
+          red = "#ed8796";
+          green = "#a6da95";
+          yellow = "#eed49f";
+          blue = "#8aadf4";
+          magenta = "#f5bde6";
+          cyan = "#8bd5ca";
+          white = "#b8c0e0";
         };
         bright = {
-          black = "#1a2a1a";
-          red = "#f87171";
-          green = "#86efac";
-          yellow = "#fef08a";
-          blue = "#a5f3fc";
-          magenta = "#d8b4fe";
-          cyan = "#99f6e4";
-          white = "#f0fdf4";
+          black = "#5b6078";
+          red = "#ed8796";
+          green = "#a6da95";
+          yellow = "#eed49f";
+          blue = "#8aadf4";
+          magenta = "#f5bde6";
+          cyan = "#8bd5ca";
+          white = "#a5adcb";
         };
         dim = {
-          black = "#0a0e0a";
-          red = "#e57373";
-          green = "#4ade80";
-          yellow = "#f0e68c";
-          blue = "#7dd3fc";
-          magenta = "#c084fc";
-          cyan = "#5eead4";
-          white = "#6b7b6b";
+          black = "#494d64";
+          red = "#ed8796";
+          green = "#a6da95";
+          yellow = "#eed49f";
+          blue = "#8aadf4";
+          magenta = "#f5bde6";
+          cyan = "#8bd5ca";
+          white = "#b8c0e0";
         };
       };
 
-      bell = { animation = "EaseOutExpo"; duration = 300; color = "#ffffff"; };
+      bell = { animation = "EaseOutExpo"; duration = 300; color = "#f4dbd6"; };
       selection = { save_to_clipboard = true; };
       cursor = { style = "Block"; };
       mouse = { hide_when_typing = true; };

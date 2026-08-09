@@ -11,8 +11,12 @@
       ./home/alacritty.nix
       ./home/starship.nix
       ./home/fish.nix
+      ./home/theme.nix
       ./home/hyprland.nix
       ./home/waybar.nix
+      ./home/rofi.nix
+      ./home/notifications.nix
+      ./home/wlogout.nix
     ];
 
     programs.home-manager.enable = true;

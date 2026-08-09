@@ -5,20 +5,21 @@
     enable = true;
     interactiveShellInit = ''
       set -g fish_greeting
-      set -U fish_color_normal c4d4b8
-      set -U fish_color_command 5eead4
-      set -U fish_color_keyword c084fc
-      set -U fish_color_quote f0e68c
-      set -U fish_color_redirection 4ade80
-      set -U fish_color_end 86efac
-      set -U fish_color_error e57373
-      set -U fish_color_param 7dd3fc
-      set -U fish_color_comment 6b7b6b
-      set -U fish_color_selection --background=1a2a1a
-      set -U fish_color_autosuggestion 6b7b6b
-      set -U fish_pager_color_progress 6b7b6b
-      set -U fish_pager_color_description 5eead4
-      set -U fish_pager_color_completion c4d4b8
+      # Catppuccin Macchiato
+      set -U fish_color_normal cad3f5
+      set -U fish_color_command 8aadf4
+      set -U fish_color_keyword f5bde6
+      set -U fish_color_quote a6da95
+      set -U fish_color_redirection f5bde6
+      set -U fish_color_end f5a97f
+      set -U fish_color_error ed8796
+      set -U fish_color_param f4dbd6
+      set -U fish_color_comment 6e738d
+      set -U fish_color_selection --background=494d64
+      set -U fish_color_autosuggestion 6e738d
+      set -U fish_pager_color_progress 6e738d
+      set -U fish_pager_color_description 8bd5ca
+      set -U fish_pager_color_completion cad3f5
     '';
 
     shellAbbrs = {
