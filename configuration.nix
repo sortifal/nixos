@@ -44,6 +44,11 @@
   #
   # --sessions is required on NixOS: tuigreet's built-in defaults point at
   # /usr/share/{wayland-sessions,xsessions}, which do not exist here.
+  #
+  # --cmd is the fallback when the session list is empty or nothing has been
+  # remembered yet. Without it tuigreet authenticates fine and then fails with
+  # "no command configured", which is what happened on the first login here.
+  # A selected session still takes priority over it.
   services.greetd = {
     enable = true;
     settings.default_session = {
@@ -53,6 +58,7 @@
         "--remember"
         "--remember-session"
         "--sessions /run/current-system/sw/share/wayland-sessions"
+        "--cmd Hyprland"
       ];
       user = "greeter";
     };
