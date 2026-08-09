@@ -1,5 +1,5 @@
 # Basic NixOS configuration
-# Simple setup for i3, alacritty, and vim
+# Simple setup for i3, Hyprland, alacritty, and vim
 
 { config, lib, pkgs, ... }:
 
@@ -27,11 +27,39 @@
 
   # X11 and i3
   services.xserver.enable = true;
-  services.xserver.displayManager.lightdm.enable = true;
   services.xserver.windowManager.i3 = {
     enable = true;
     package = pkgs.i3;
     configFile = /etc/nixos/i3.conf;
+  };
+
+  # Display manager: SDDM shows both the X11 (i3) and Wayland (Hyprland)
+  # sessions, unlike lightdm which does not reliably launch Wayland sessions.
+  services.displayManager.sddm.enable = true;
+  services.displayManager.sddm.wayland.enable = true;
+
+  # Hyprland (Wayland)
+  programs.hyprland = {
+    enable = true;
+    xwayland.enable = true;
+  };
+
+  xdg.portal = {
+    enable = true;
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-hyprland
+      xdg-desktop-portal-gtk
+    ];
+    config.common.default = [ "hyprland" "gtk" ];
+  };
+
+  hardware.graphics.enable = true;
+
+  security.polkit.enable = true;
+
+  environment.sessionVariables = {
+    NIXOS_OZONE_WL = "1";
+    MOZ_ENABLE_WAYLAND = "1";
   };
 
   # Input devices
@@ -109,6 +137,10 @@
     starship
     yubikey-manager
     yubioath-flutter
+
+    # Hyprland session support
+    polkit_gnome
+    qt6.qtwayland
   ];
 
   system.stateVersion = "25.11";
