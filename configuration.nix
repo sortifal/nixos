@@ -7,6 +7,7 @@
   imports =
     [ <home-manager/nixos>
       ./home-manager.nix
+      ./hardware-configuration.nix
     ];
 
   # Boot configuration
