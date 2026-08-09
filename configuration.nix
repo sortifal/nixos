@@ -173,7 +173,7 @@
       # Waybar's CSS falls back to these for the glyphs and emoji in its
       # module formats.
       nerd-fonts.symbols-only
-      noto-fonts-emoji
+      noto-fonts-color-emoji
     ];
     fontconfig = {
       enable = true;
