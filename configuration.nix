@@ -13,6 +13,11 @@
   # Boot configuration
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  # Newest mainline is a recurring source of amdgpu hangs on iGPUs. Less
+  # likely now that the fault is known to be login-time only, but if the
+  # black screen somehow survives the greetd change, swap this for the
+  # default LTS kernel as the next single-variable test:
+  #   boot.kernelPackages = pkgs.linuxPackages;
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   # Networking
@@ -24,30 +29,56 @@
   # Locale
   i18n.defaultLocale = "en_US.UTF-8";
 
-  # Display manager: SDDM reliably launches Wayland sessions, unlike lightdm.
-  # This machine only has one GPU (AMD iGPU, no discrete GPU). Running the
-  # SDDM *greeter* on Xorg (wayland.enable = false) was tried as a
-  # workaround for a black screen, but on single-GPU hardware an Xorg
-  # greeter frequently fails to release DRM master cleanly when handing off
-  # to a Wayland session (Hyprland) - it worked fine when launched manually
-  # from a TTY, which confirmed the driver/compositor were never the
-  # problem. Keep the greeter itself on Wayland so DRM master hands off
-  # cleanly to the Hyprland session. services.xserver.enable stays on since
-  # SDDM/Xwayland still rely on it for Xkb config.
-  services.xserver.enable = true;
-  services.displayManager.sddm.enable = true;
-  services.displayManager.sddm.wayland.enable = true;
+  # Display manager: greetd + tuigreet.
+  #
+  # SDDM was tried with both greeter backends and black-screened either way.
+  # The failure is specifically the DRM master handoff at login: the greeter's
+  # compositor holds master and Hyprland cannot take it. Confirmed by the fact
+  # that the black screen only ever happens *after* login, and that launching
+  # Hyprland by hand from a TTY works every time - so the driver, the kernel
+  # and the compositor are all fine.
+  #
+  # tuigreet removes the whole class of problem: it is a terminal UI on a
+  # plain VT, so it never becomes DRM master and there is nothing to hand
+  # over. Hyprland is the first and only thing to touch the display.
+  #
+  # --sessions is required on NixOS: tuigreet's built-in defaults point at
+  # /usr/share/{wayland-sessions,xsessions}, which do not exist here.
+  services.greetd = {
+    enable = true;
+    settings.default_session = {
+      command = lib.concatStringsSep " " [
+        "${pkgs.greetd.tuigreet}/bin/tuigreet"
+        "--time"
+        "--remember"
+        "--remember-session"
+        "--sessions /run/current-system/sw/share/wayland-sessions"
+      ];
+      user = "greeter";
+    };
+  };
+
+  # No X server at all now that SDDM is gone. Hyprland's Xwayland does not
+  # need services.xserver.enable, and keeping an unused X server around only
+  # adds another process that can contend for the GPU.
 
   # AMD iGPU (e.g. Ryzen 4000/5000 "Renoir/Cezanne" Vega graphics): load
-  # amdgpu during initrd so KMS is active before the display manager starts,
-  # avoiding a boot/login handoff race that can show up as a black screen.
+  # amdgpu during initrd so KMS is active before anything tries to draw.
   boot.initrd.kernelModules = [ "amdgpu" ];
-  services.xserver.videoDrivers = [ "amdgpu" ];
 
   # Hyprland (Wayland)
   programs.hyprland = {
     enable = true;
     xwayland.enable = true;
+
+    # UWSM puts the session under systemd and is what the upstream config
+    # this repo tracks uses. Deliberately left off for now so that greetd is
+    # the only change being tested. To turn it on later: set this to true and
+    # set wayland.windowManager.hyprland.systemd.enable = false in
+    # home/hyprland.nix (UWSM manages the session target itself, so both
+    # doing it would double-activate). tuigreet will then offer
+    # "hyprland-uwsm" alongside "hyprland" in its session list.
+    # withUWSM = true;
   };
 
   xdg.portal = {
@@ -66,8 +97,12 @@
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";
     MOZ_ENABLE_WAYLAND = "1";
-    # Common fix for "Hyprland starts but nothing draws" on AMD iGPUs where
-    # the hardware cursor plane doesn't composite correctly.
+    # NOTE: this is a wlroots variable and Hyprland has not used wlroots
+    # since 0.42 (it renders through aquamarine now), so it is a no-op here
+    # and never had anything to do with the black screen. Kept only because
+    # it is harmless; the current equivalent, if software cursors are ever
+    # needed on this iGPU, is `cursor { no_hardware_cursors = true }` in the
+    # Hyprland config.
     WLR_NO_HARDWARE_CURSORS = "1";
   };
 
