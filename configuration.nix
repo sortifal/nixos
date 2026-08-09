@@ -5,9 +5,7 @@
 
 {
   imports =
-    [ # Include results of hardware scan.
-      ./hardware-configuration.nix
-      <home-manager/nixos>
+    [ <home-manager/nixos>
       ./home-manager.nix
     ];
 
@@ -72,12 +70,12 @@
 
   # User account
   users.users.sorti = {
-     description = "Sorti-";
-     isNormalUser = true;
-      extraGroups = [ "networkmanager" "wheel" "audio" "video" "plugdev" ];
-     shell = pkgs.fish;
-     initialPassword = "pass";
-   };
+    description = "Sorti-";
+    isNormalUser = true;
+    extraGroups = [ "networkmanager" "wheel" "audio" "video" "plugdev" ];
+    shell = pkgs.fish;
+    initialPassword = "pass";
+  };
 
   # Fonts
   fonts = {
