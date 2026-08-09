@@ -1,5 +1,5 @@
 # Basic NixOS configuration
-# Simple setup for i3, Hyprland, alacritty, and vim
+# Simple setup for Hyprland, alacritty, and vim
 
 { config, lib, pkgs, ... }:
 
@@ -25,16 +25,7 @@
   # Locale
   i18n.defaultLocale = "en_US.UTF-8";
 
-  # X11 and i3
-  services.xserver.enable = true;
-  services.xserver.windowManager.i3 = {
-    enable = true;
-    package = pkgs.i3;
-    configFile = /etc/nixos/i3.conf;
-  };
-
-  # Display manager: SDDM shows both the X11 (i3) and Wayland (Hyprland)
-  # sessions, unlike lightdm which does not reliably launch Wayland sessions.
+  # Display manager: SDDM reliably launches Wayland sessions, unlike lightdm.
   services.displayManager.sddm.enable = true;
   services.displayManager.sddm.wayland.enable = true;
 
@@ -111,15 +102,6 @@
     alacritty
     git
     wget
-    i3
-    i3status
-    i3lock
-    dmenu
-    picom
-    rofi
-    nitrogen
-    feh
-    scrot
     brightnessctl
     pamixer
     networkmanagerapplet
