@@ -32,8 +32,17 @@ in
     settings = {
       ipc = false;
       splash = false;
-      preload = [ wallpaperPath ];
-      wallpaper = [ ",${wallpaperPath}" ];
+      # hyprpaper 0.8 was rewritten and dropped both the `preload` directive
+      # and the flat `wallpaper = monitor,path` form. Wallpapers are now
+      # declared as `wallpaper { }` blocks that name their own image with
+      # `path`; an empty `monitor` applies to every output. The old syntax is
+      # silently ignored, which just leaves the monitor with "no target" and a
+      # blank background.
+      wallpaper = [{
+        monitor = "";
+        path = wallpaperPath;
+        fit_mode = "cover";
+      }];
     };
   };
 
