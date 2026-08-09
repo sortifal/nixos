@@ -81,6 +81,10 @@
     # withUWSM = true;
   };
 
+  # hyprlock authenticates against PAM, which needs a system-level service
+  # entry; the lock screen itself is configured in home/hyprland-services.nix.
+  programs.hyprlock.enable = true;
+
   xdg.portal = {
     enable = true;
     extraPortals = with pkgs; [
@@ -120,6 +124,11 @@
     pulse.enable = true;
   };
 
+  # Bluetooth - the Waybar bluetooth module, the blueman applet and the
+  # SUPER+SHIFT+Y toggle all need the stack actually running.
+  hardware.bluetooth.enable = true;
+  services.blueman.enable = true;
+
   # Fish shell
   programs.fish.enable = true;
 
@@ -132,12 +141,39 @@
     initialPassword = "pass";
   };
 
+  # Catppuccin Macchiato in the TTY, to match the desktop theme.
+  console = {
+    earlySetup = true;
+    colors = [
+      "24273a"
+      "ed8796"
+      "a6da95"
+      "eed49f"
+      "8aadf4"
+      "f5bde6"
+      "8bd5ca"
+      "cad3f5"
+      "5b6078"
+      "ed8796"
+      "a6da95"
+      "eed49f"
+      "8aadf4"
+      "f5bde6"
+      "8bd5ca"
+      "a5adcb"
+    ];
+  };
+
   # Fonts
   fonts = {
     enableDefaultPackages = true;
     packages = with pkgs; [
       jetbrains-mono
       nerd-fonts.jetbrains-mono
+      # Waybar's CSS falls back to these for the glyphs and emoji in its
+      # module formats.
+      nerd-fonts.symbols-only
+      noto-fonts-emoji
     ];
     fontconfig = {
       enable = true;
