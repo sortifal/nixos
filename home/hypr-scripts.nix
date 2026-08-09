@@ -11,7 +11,7 @@ let
   slurp = "${pkgs.slurp}/bin/slurp";
   wlCopy = "${pkgs.wl-clipboard}/bin/wl-copy";
   cliphist = "${pkgs.cliphist}/bin/cliphist";
-  rofi = "${pkgs.rofi-wayland}/bin/rofi";
+  rofi = "${pkgs.rofi}/bin/rofi";
   notify = "${pkgs.libnotify}/bin/notify-send";
   pgrep = "${pkgs.procps}/bin/pgrep";
   pkill = "${pkgs.procps}/bin/pkill";

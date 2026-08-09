@@ -3,7 +3,8 @@
 { pkgs, ... }:
 
 {
-  home.packages = [ pkgs.rofi-wayland ];
+  # rofi-wayland was merged back into rofi; the plain package is Wayland-capable.
+  home.packages = [ pkgs.rofi ];
 
   xdg.configFile."rofi/config.rasi".text = ''
     configuration{
