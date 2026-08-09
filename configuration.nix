@@ -199,6 +199,11 @@
     };
   };
 
+  # claude-code is unfree. Allow it by name rather than setting
+  # allowUnfree globally, so anything else unfree still has to be opted in.
+  nixpkgs.config.allowUnfreePredicate =
+    pkg: builtins.elem (lib.getName pkg) [ "claude-code" ];
+
   # System packages
   environment.systemPackages = with pkgs; [
     vim
@@ -219,6 +224,7 @@
     imagemagick
     conky
     opencode
+    claude-code
     starship
     yubikey-manager
     yubioath-flutter
