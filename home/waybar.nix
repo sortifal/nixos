@@ -1,5 +1,5 @@
-# Three-bar Waybar layout ported from the upstream config: status on top,
-# window/user info on the bottom, system meters down the left side.
+# Single top-bar Waybar layout: workspaces/taskbar and system meters live in
+# one bar instead of being split across separate top/bottom/left bars.
 { pkgs, ... }:
 
 let
@@ -13,14 +13,13 @@ in
     systemd.enable = false;
 
     settings = [
-      # ---------------------------------------------------------------- top
       {
         name = "top_bar";
         layer = "top";
         position = "top";
         height = 36;
         spacing = 4;
-        modules-left = [ "hyprland/workspaces" "hyprland/submap" ];
+        modules-left = [ "hyprland/workspaces" "hyprland/submap" "wlr/taskbar" ];
         modules-center = [
           "clock#time"
           "custom/separator"
@@ -30,7 +29,21 @@ in
           "custom/separator"
           "clock#calendar"
         ];
-        modules-right = [ "bluetooth" "network" "group/misc" "custom/logout_menu" ];
+        modules-right = [
+          "cpu"
+          "memory"
+          "disk"
+          "temperature"
+          "battery"
+          "backlight"
+          "pulseaudio"
+          "systemd-failed-units"
+          "bluetooth"
+          "network"
+          "group/misc"
+          "tray"
+          "custom/logout_menu"
+        ];
 
         "hyprland/workspaces" = {
           on-click = "activate";
@@ -57,8 +70,18 @@ in
           tooltip = false;
         };
 
+        "wlr/taskbar" = {
+          format = "{icon}";
+          icon-size = 20;
+          icon-theme = "Numix-Circle";
+          tooltip-format = "{title}";
+          on-click = "activate";
+          on-click-right = "close";
+          on-click-middle = "fullscreen";
+        };
+
         "clock#time" = {
-          format = "{:%I:%M %p %Ez}";
+          format = "{:%H:%M}";
         };
 
         "custom/separator" = {
@@ -92,6 +115,133 @@ in
               today = "<span color='#8bd5ca'><b><u>{}</u></b></span>";
             };
           };
+        };
+
+        cpu = {
+          format = "󰻠 {usage}%";
+          states = {
+            high = 90;
+            upper-medium = 70;
+            medium = 50;
+            lower-medium = 30;
+            low = 10;
+          };
+          on-click = "alacritty -e htop";
+        };
+
+        memory = {
+          format = "󰍛 {percentage}%";
+          tooltip-format = "Main: ({used} GiB/{total} GiB)({percentage}%), available {avail} GiB\nSwap: ({swapUsed} GiB/{swapTotal} GiB)({swapPercentage}%), available {swapAvail} GiB";
+          states = {
+            high = 90;
+            upper-medium = 70;
+            medium = 50;
+            lower-medium = 30;
+            low = 10;
+          };
+          on-click = "alacritty -e htop";
+        };
+
+        disk = {
+          format = "󰋊 {percentage_used}%";
+          tooltip-format = "({used}/{total})({percentage_used}%) in '{path}', available {free}({percentage_free}%)";
+          states = {
+            high = 90;
+            upper-medium = 70;
+            medium = 50;
+            lower-medium = 30;
+            low = 10;
+          };
+          on-click = "alacritty -e htop";
+        };
+
+        # Upstream pins thermal-zone 8, which is laptop-specific; leaving it
+        # out lets waybar pick the default zone.
+        temperature = {
+          tooltip = false;
+          critical-threshold = 80;
+          format = "{icon} {temperatureC}󰔄";
+          format-critical = "🔥 {icon} {temperatureC}󰔄";
+          format-icons = [ "" "" "" "" "" ];
+        };
+
+        battery = {
+          states = {
+            high = 90;
+            upper-medium = 70;
+            medium = 50;
+            lower-medium = 30;
+            low = 10;
+          };
+          format = "{icon} {capacity}%";
+          format-charging = "󱐋 {icon} {capacity}%";
+          format-plugged = "󰚥 {icon} {capacity}%";
+          format-time = "{H} h {M} min";
+          format-icons = [ "󱃍" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹" ];
+          tooltip-format = "{timeTo}";
+        };
+
+        backlight = {
+          format = "{icon} {percent}%";
+          format-icons = [
+            "󰌶"
+            "󱩎"
+            "󱩏"
+            "󱩐"
+            "󱩑"
+            "󱩒"
+            "󱩓"
+            "󱩔"
+            "󱩕"
+            "󱩖"
+            "󰛨"
+          ];
+          tooltip = false;
+          states = {
+            high = 90;
+            upper-medium = 70;
+            medium = 50;
+            lower-medium = 30;
+            low = 10;
+          };
+          reverse-scrolling = true;
+          reverse-mouse-scrolling = true;
+        };
+
+        pulseaudio = {
+          states = {
+            high = 90;
+            upper-medium = 70;
+            medium = 50;
+            lower-medium = 30;
+            low = 10;
+          };
+          tooltip-format = "{desc}";
+          format = "{icon} {volume}%\n{format_source}";
+          format-bluetooth = "󰂱 {icon} {volume}%\n{format_source}";
+          format-bluetooth-muted = "󰂱 󰝟 {volume}%\n{format_source}";
+          format-muted = "󰝟 {volume}%\n{format_source}";
+          format-source = "󰍬 {volume}%";
+          format-source-muted = "󰍭 {volume}%";
+          format-icons = {
+            headphone = "󰋋";
+            hands-free = "";
+            headset = "󰋎";
+            phone = "󰄜";
+            portable = "󰦧";
+            car = "󰄋";
+            speaker = "󰓃";
+            hdmi = "󰡁";
+            hifi = "󰋌";
+            default = [ "󰕿" "󰖀" "󰕾" ];
+          };
+          reverse-scrolling = true;
+          reverse-mouse-scrolling = true;
+          on-click = "pavucontrol";
+        };
+
+        systemd-failed-units = {
+          format = "✗ {nr_failed}";
         };
 
         bluetooth = {
@@ -158,207 +308,16 @@ in
           start-activated = true;
         };
 
-        "custom/logout_menu" = {
-          return-type = "json";
-          exec = "echo '{ \"text\":\"󰐥\", \"tooltip\": \"logout menu\" }'";
-          interval = "once";
-          on-click = "${scripts.wlogoutUnique}/bin/wlogout-unique";
-        };
-      }
-
-      # ------------------------------------------------------------- bottom
-      {
-        name = "bottom_bar";
-        layer = "top";
-        position = "bottom";
-        height = 36;
-        spacing = 4;
-        modules-left = [ "user" ];
-        modules-center = [ "hyprland/window" ];
-        modules-right = [ "keyboard-state" ];
-
-        "hyprland/window" = {
-          format = "👼 {title} 😈";
-          max-length = 50;
-        };
-
-        keyboard-state = {
-          capslock = true;
-          format = "{name} {icon}";
-          format-icons = {
-            locked = "󰌾";
-            unlocked = "󰍀";
-          };
-        };
-
-        user = {
-          format = " <span color='#8bd5ca'>{user}</span> (up <span color='#f5bde6'>{work_d} d</span> <span color='#8aadf4'>{work_H} h</span> <span color='#eed49f'>{work_M} min</span> <span color='#a6da95'>↑</span>)";
-          icon = true;
-        };
-      }
-
-      # --------------------------------------------------------------- left
-      {
-        name = "left_bar";
-        layer = "top";
-        position = "left";
-        spacing = 4;
-        width = 75;
-        margin-top = 10;
-        margin-bottom = 10;
-        modules-left = [ "wlr/taskbar" ];
-        modules-center = [
-          "cpu"
-          "memory"
-          "disk"
-          "temperature"
-          "battery"
-          "backlight"
-          "pulseaudio"
-          "systemd-failed-units"
-        ];
-        modules-right = [ "tray" ];
-
-        "wlr/taskbar" = {
-          format = "{icon}";
-          icon-size = 20;
-          icon-theme = "Numix-Circle";
-          tooltip-format = "{title}";
-          on-click = "activate";
-          on-click-right = "close";
-          on-click-middle = "fullscreen";
-        };
-
         tray = {
           icon-size = 20;
           spacing = 2;
         };
 
-        cpu = {
-          format = "󰻠 {usage}%";
-          states = {
-            high = 90;
-            upper-medium = 70;
-            medium = 50;
-            lower-medium = 30;
-            low = 10;
-          };
-          on-click = "alacritty -e htop";
-        };
-
-        memory = {
-          format = "󰍛 {percentage}%";
-          tooltip-format = "Main: ({used} GiB/{total} GiB)({percentage}%), available {avail} GiB\nSwap: ({swapUsed} GiB/{swapTotal} GiB)({swapPercentage}%), available {swapAvail} GiB";
-          states = {
-            high = 90;
-            upper-medium = 70;
-            medium = 50;
-            lower-medium = 30;
-            low = 10;
-          };
-          on-click = "alacritty -e htop";
-        };
-
-        disk = {
-          format = "󰋊 {percentage_used}%";
-          tooltip-format = "({used}/{total})({percentage_used}%) in '{path}', available {free}({percentage_free}%)";
-          states = {
-            high = 90;
-            upper-medium = 70;
-            medium = 50;
-            lower-medium = 30;
-            low = 10;
-          };
-          on-click = "alacritty -e htop";
-        };
-
-        # Upstream pins thermal-zone 8, which is laptop-specific; leaving it
-        # out lets waybar pick the default zone.
-        temperature = {
-          tooltip = false;
-          critical-threshold = 80;
-          format = "{icon} {temperatureC}󰔄";
-          format-critical = "🔥 {icon} {temperatureC}󰔄";
-          format-icons = [ "" "" "" "" "" ];
-        };
-
-        battery = {
-          states = {
-            high = 90;
-            upper-medium = 70;
-            medium = 50;
-            lower-medium = 30;
-            low = 10;
-          };
-          format = "{icon} {capacity}%";
-          format-charging = "󱐋 {icon} {capacity}%";
-          format-plugged = "󰚥 {icon} {capacity}%";
-          format-time = "{H} h {M} min";
-          format-icons = [ "󱃍" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹" ];
-          tooltip-format = "{timeTo}";
-        };
-
-        backlight = {
-          format = "{icon} {percent}%";
-          format-icons = [
-            "󰌶"
-            "󱩎"
-            "󱩏"
-            "󱩐"
-            "󱩑"
-            "󱩒"
-            "󱩓"
-            "󱩔"
-            "󱩕"
-            "󱩖"
-            "󰛨"
-          ];
-          tooltip = false;
-          states = {
-            high = 90;
-            upper-medium = 70;
-            medium = 50;
-            lower-medium = 30;
-            low = 10;
-          };
-          reverse-scrolling = true;
-          reverse-mouse-scrolling = true;
-        };
-
-        pulseaudio = {
-          states = {
-            high = 90;
-            upper-medium = 70;
-            medium = 50;
-            lower-medium = 30;
-            low = 10;
-          };
-          tooltip-format = "{desc}";
-          format = "{icon} {volume}%\n{format_source}";
-          format-bluetooth = "󰂱 {icon} {volume}%\n{format_source}";
-          format-bluetooth-muted = "󰂱 󰝟 {volume}%\n{format_source}";
-          format-muted = "󰝟 {volume}%\n{format_source}";
-          format-source = "󰍬 {volume}%";
-          format-source-muted = "󰍭 {volume}%";
-          format-icons = {
-            headphone = "󰋋";
-            hands-free = "";
-            headset = "󰋎";
-            phone = "󰄜";
-            portable = "󰦧";
-            car = "󰄋";
-            speaker = "󰓃";
-            hdmi = "󰡁";
-            hifi = "󰋌";
-            default = [ "󰕿" "󰖀" "󰕾" ];
-          };
-          reverse-scrolling = true;
-          reverse-mouse-scrolling = true;
-          on-click = "pavucontrol";
-        };
-
-        systemd-failed-units = {
-          format = "✗ {nr_failed}";
+        "custom/logout_menu" = {
+          return-type = "json";
+          exec = "echo '{ \"text\":\"󰐥\", \"tooltip\": \"logout menu\" }'";
+          interval = "once";
+          on-click = "${scripts.wlogoutUnique}/bin/wlogout-unique";
         };
       }
     ];
@@ -401,62 +360,9 @@ in
         font-family: "JetBrains Mono", "Symbols Nerd Font", "Noto Color Emoji";
       }
 
-      window.bottom_bar#waybar {
-        background-color: alpha(@base, 0.7);
-        border-top: solid alpha(@surface1, 0.7) 2px;
-      }
-
       window.top_bar#waybar {
         background-color: alpha(@base, 0.7);
         border-bottom: solid alpha(@surface1, 0.7) 2px;
-      }
-
-      window.left_bar#waybar {
-        background-color: alpha(@base, 0.7);
-        border-top: solid alpha(@surface1, 0.7) 2px;
-        border-right: solid alpha(@surface1, 0.7) 2px;
-        border-bottom: solid alpha(@surface1, 0.7) 2px;
-        border-radius: 0 15px 15px 0;
-      }
-
-      window.bottom_bar .modules-center {
-        background-color: alpha(@surface1, 0.7);
-        color: @green;
-        border-radius: 15px;
-        padding-left: 20px;
-        padding-right: 20px;
-        margin-top: 5px;
-        margin-bottom: 5px;
-      }
-
-      window.bottom_bar .modules-left {
-        background-color: alpha(@surface1, 0.7);
-        border-radius: 0 15px 15px 0;
-        padding-left: 20px;
-        padding-right: 20px;
-        margin-top: 5px;
-        margin-bottom: 5px;
-      }
-
-      window.bottom_bar .modules-right {
-        background-color: alpha(@surface1, 0.7);
-        border-radius: 15px 0 0 15px;
-        padding-left: 20px;
-        padding-right: 20px;
-        margin-top: 5px;
-        margin-bottom: 5px;
-      }
-
-      #user {
-        padding-left: 10px;
-      }
-
-      #keyboard-state label.locked {
-        color: @yellow;
-      }
-
-      #keyboard-state label {
-        color: @subtext0;
       }
 
       #workspaces {
@@ -487,6 +393,15 @@ in
         margin-bottom: 5px;
       }
 
+      #taskbar {
+        margin-left: 10px;
+      }
+
+      #taskbar button.active {
+        background-color: alpha(@surface1, 0.7);
+        border-radius: 10px;
+      }
+
       window.top_bar .modules-center {
         font-weight: bold;
         background-color: alpha(@surface1, 0.7);
@@ -514,120 +429,6 @@ in
 
       #clock.calendar {
         color: @mauve;
-      }
-
-      #bluetooth {
-        background-color: alpha(@surface1, 0.7);
-        border-radius: 15px;
-        padding-left: 15px;
-        padding-right: 15px;
-        margin-top: 5px;
-        margin-bottom: 5px;
-      }
-
-      #bluetooth.disabled {
-        background-color: alpha(@surface0, 0.7);
-        color: @subtext0;
-      }
-
-      #bluetooth.on {
-        color: @blue;
-      }
-
-      #bluetooth.connected {
-        color: @sapphire;
-      }
-
-      #network {
-        background-color: alpha(@surface1, 0.7);
-        border-radius: 15px;
-        padding-left: 15px;
-        padding-right: 15px;
-        margin-left: 2px;
-        margin-right: 2px;
-        margin-top: 5px;
-        margin-bottom: 5px;
-      }
-
-      #network.disabled {
-        background-color: alpha(@surface0, 0.7);
-        color: @subtext0;
-      }
-
-      #network.disconnected {
-        color: @red;
-      }
-
-      #network.wifi {
-        color: @teal;
-      }
-
-      #idle_inhibitor {
-        margin-right: 6px;
-      }
-
-      #idle_inhibitor.deactivated {
-        color: @subtext0;
-      }
-
-      #mpris {
-        margin-right: 6px;
-      }
-
-      #mpris.paused {
-        color: @subtext0;
-      }
-
-      #privacy-item.screenshare {
-        color: @peach;
-        margin-right: 6px;
-      }
-
-      #privacy-item.audio-in {
-        color: @pink;
-        margin-right: 6px;
-      }
-
-      #custom-logout_menu {
-        color: @red;
-        background-color: alpha(@surface1, 0.7);
-        border-radius: 15px 0 0 15px;
-        padding-left: 10px;
-        padding-right: 5px;
-        margin-top: 5px;
-        margin-bottom: 5px;
-      }
-
-      window.left_bar .modules-center {
-        background-color: alpha(@surface1, 0.7);
-        border-radius: 0 15px 15px 0;
-        margin-right: 5px;
-        margin-top: 15px;
-        margin-bottom: 15px;
-        padding-top: 5px;
-        padding-bottom: 5px;
-      }
-
-      #taskbar {
-        margin-top: 10px;
-        margin-right: 10px;
-        margin-left: 10px;
-      }
-
-      #taskbar button.active {
-        background-color: alpha(@surface1, 0.7);
-        border-radius: 10px;
-      }
-
-      #tray {
-        margin-bottom: 10px;
-        margin-right: 10px;
-        margin-left: 10px;
-      }
-
-      #tray > .needs-attention {
-        background-color: alpha(@maroon, 0.7);
-        border-radius: 10px;
       }
 
       #cpu,
@@ -756,6 +557,98 @@ in
 
       #systemd-failed-units {
         color: @red;
+      }
+
+      #bluetooth {
+        background-color: alpha(@surface1, 0.7);
+        border-radius: 15px;
+        padding-left: 15px;
+        padding-right: 15px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+      }
+
+      #bluetooth.disabled {
+        background-color: alpha(@surface0, 0.7);
+        color: @subtext0;
+      }
+
+      #bluetooth.on {
+        color: @blue;
+      }
+
+      #bluetooth.connected {
+        color: @sapphire;
+      }
+
+      #network {
+        background-color: alpha(@surface1, 0.7);
+        border-radius: 15px;
+        padding-left: 15px;
+        padding-right: 15px;
+        margin-left: 2px;
+        margin-right: 2px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+      }
+
+      #network.disabled {
+        background-color: alpha(@surface0, 0.7);
+        color: @subtext0;
+      }
+
+      #network.disconnected {
+        color: @red;
+      }
+
+      #network.wifi {
+        color: @teal;
+      }
+
+      #idle_inhibitor {
+        margin-right: 6px;
+      }
+
+      #idle_inhibitor.deactivated {
+        color: @subtext0;
+      }
+
+      #mpris {
+        margin-right: 6px;
+      }
+
+      #mpris.paused {
+        color: @subtext0;
+      }
+
+      #privacy-item.screenshare {
+        color: @peach;
+        margin-right: 6px;
+      }
+
+      #privacy-item.audio-in {
+        color: @pink;
+        margin-right: 6px;
+      }
+
+      #tray {
+        margin-left: 10px;
+        margin-right: 6px;
+      }
+
+      #tray > .needs-attention {
+        background-color: alpha(@maroon, 0.7);
+        border-radius: 10px;
+      }
+
+      #custom-logout_menu {
+        color: @red;
+        background-color: alpha(@surface1, 0.7);
+        border-radius: 15px 0 0 15px;
+        padding-left: 10px;
+        padding-right: 5px;
+        margin-top: 5px;
+        margin-bottom: 5px;
       }
     '';
   };
