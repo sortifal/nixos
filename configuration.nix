@@ -3,6 +3,17 @@
 
 { config, lib, pkgs, ... }:
 
+let
+  # Pull individual packages from nixpkgs-unstable while the rest of the
+  # system stays on the stable channel. Requires the `unstable` channel:
+  #   sudo nix-channel --add https://channels.nixos.org/nixpkgs-unstable unstable
+  #   sudo nix-channel --update
+  # allowUnfree is inherited so unfree packages (claude-code) resolve here too.
+  unstable = import <unstable> {
+    inherit (config.nixpkgs) config;
+    inherit (pkgs) system;
+  };
+in
 {
   imports =
     [ <home-manager/nixos>
@@ -201,6 +212,7 @@
 
   # claude-code is unfree. Allow it by name rather than setting
   # allowUnfree globally, so anything else unfree still has to be opted in.
+  # This predicate is shared with the unstable import above via config.nixpkgs.
   nixpkgs.config.allowUnfreePredicate =
     pkg: builtins.elem (lib.getName pkg) [ "claude-code" ];
 
@@ -224,10 +236,16 @@
     imagemagick
     conky
     opencode
-    claude-code
+    unstable.claude-code # latest version from nixpkgs-unstable
     starship
     yubikey-manager
     yubioath-flutter
+
+    # WireGuard: the kernel module ships with the kernel, so only the
+    # userspace tooling (wg, wg-quick) is needed. Tunnels are managed either
+    # through NetworkManager (import a .conf via nmcli/the applet) or with
+    # `sudo wg-quick up <conf>` for a plain config file.
+    wireguard-tools
 
     # Hyprland session support
     polkit_gnome
