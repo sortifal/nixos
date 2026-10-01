@@ -1,25 +1,26 @@
-# Basic NixOS configuration
-# Simple setup for Hyprland, alacritty, and vim
+# System configuration for the `nixos` host: a Hyprland (Wayland) desktop on an
+# AMD laptop. Everything host-specific lives here and in
+# ./hardware-configuration.nix; the user environment is in ../../home.
+# See ../../README.md for how to build this on a new machine.
 
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 let
   # Pull individual packages from nixpkgs-unstable while the rest of the
-  # system stays on the stable channel. Requires the `unstable` channel:
-  #   sudo nix-channel --add https://channels.nixos.org/nixpkgs-unstable unstable
-  #   sudo nix-channel --update
+  # system stays on the stable release. The unstable tree is a flake input
+  # (see flake.nix), so a fresh clone needs no `nix-channel` setup at all.
   # allowUnfree is inherited so unfree packages (claude-code) resolve here too.
-  unstable = import <unstable> {
+  unstable = import inputs.nixpkgs-unstable {
     inherit (config.nixpkgs) config;
     inherit (pkgs) system;
   };
 in
 {
-  imports =
-    [ <home-manager/nixos>
-      ./home-manager.nix
-      ./hardware-configuration.nix
-    ];
+  imports = [
+    inputs.home-manager.nixosModules.home-manager
+    ../../home-manager.nix
+    ./hardware-configuration.nix
+  ];
 
   # Boot configuration
   boot.loader.systemd-boot.enable = true;
@@ -31,8 +32,15 @@ in
   #   boot.kernelPackages = pkgs.linuxPackages;
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  # Networking
+  # Networking. The hostname is what selects this host out of flake.nix:
+  #   sudo nixos-rebuild switch --flake /etc/nixos#nixos
+  networking.hostName = "nixos";
   networking.networkmanager.enable = true;
+
+  # This configuration is a flake, so the nix that rebuilds it needs the flake
+  # commands available. Without this the very first build on a new machine has
+  # to pass --extra-experimental-features by hand (see README).
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # Time zone
   time.timeZone = "Europe/Amsterdam";
@@ -126,13 +134,11 @@ in
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";
     MOZ_ENABLE_WAYLAND = "1";
-    # NOTE: this is a wlroots variable and Hyprland has not used wlroots
-    # since 0.42 (it renders through aquamarine now), so it is a no-op here
-    # and never had anything to do with the black screen. Kept only because
-    # it is harmless; the current equivalent, if software cursors are ever
-    # needed on this iGPU, is `cursor { no_hardware_cursors = true }` in the
+    # WLR_NO_HARDWARE_CURSORS used to be set here. It is a wlroots variable and
+    # Hyprland has not used wlroots since 0.42 (it renders through aquamarine
+    # now), so it was a no-op. If software cursors are ever needed on this iGPU
+    # the current equivalent is `cursor { no_hardware_cursors = true }` in the
     # Hyprland config.
-    WLR_NO_HARDWARE_CURSORS = "1";
   };
 
   # Input devices
@@ -149,6 +155,29 @@ in
     pulse.enable = true;
   };
 
+  # The ALC257's `Capture` switch comes up off after boot. The card's UCM
+  # profile ("HiFi (Mic1, Mic2, Speaker)") never enables it, and WirePlumber
+  # won't either — its saved Mic1 route already reads mute:false / vol 1.0,
+  # so wpctl, pamixer and the waybar module all report an unmuted mic while
+  # the hardware switch underneath is cutting the signal. Force it on at boot.
+  # Card index/id both shuffle, so match on the control instead.
+  systemd.services.alsa-capture-unmute = {
+    description = "Enable the ALSA capture switch on the analog mic";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "sound.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = ''
+      for c in /proc/asound/card[0-9]*; do
+        n=''${c#/proc/asound/card}
+        ${pkgs.alsa-utils}/bin/amixer -c "$n" sset Capture 75% cap 2>/dev/null || true
+        ${pkgs.alsa-utils}/bin/amixer -c "$n" sset "Mic Boost" 1 2>/dev/null || true
+      done
+    '';
+  };
+
   # Bluetooth - the Waybar bluetooth module, the blueman applet and the
   # SUPER+SHIFT+Y toggle all need the stack actually running.
   hardware.bluetooth.enable = true;
@@ -163,6 +192,8 @@ in
     isNormalUser = true;
     extraGroups = [ "networkmanager" "wheel" "audio" "video" "plugdev" ];
     shell = pkgs.fish;
+    # Only applied when the account is first created, i.e. on a fresh install.
+    # Change it with `passwd` after the first login - this repo is public.
     initialPassword = "pass";
   };
 
@@ -226,6 +257,8 @@ in
     pamixer
     networkmanagerapplet
     blueman
+    bluetuith    # TUI bluetooth manager
+    alsa-utils   # amixer/arecord — the layer pamixer and wpctl can't see
     pavucontrol
     htop
     tree
