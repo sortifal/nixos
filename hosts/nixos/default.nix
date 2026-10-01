@@ -157,7 +157,10 @@ in
 
   # YubiKey
   services.pcscd.enable = true;
-  services.udev.packages = [ pkgs.yubikey-personalization ];
+  # libfido2 ships 70-u2f.rules, which grants the logged-in user access to FIDO
+  # hidraw devices. Chromium/Electron (teams-for-linux) talks to the key over
+  # hidraw for WebAuthn, so without it the key is invisible to the app.
+  services.udev.packages = [ pkgs.yubikey-personalization pkgs.libfido2 ];
   hardware.gpgSmartcards.enable = true;
 
   # Sound
