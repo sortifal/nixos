@@ -132,9 +132,11 @@ in
           color_inactive = "0xff\$baseAlpha";
         };
 
-        active_opacity = 0.7;
-        inactive_opacity = 0.7;
-        fullscreen_opacity = 0.7;
+        # Windows are opaque by default; transparency is opt-in per app through
+        # the `opacity` windowrules below, so only the terminal is see-through.
+        active_opacity = 1.0;
+        inactive_opacity = 1.0;
+        fullscreen_opacity = 1.0;
       };
 
       layerrule = [
@@ -176,25 +178,28 @@ in
       };
 
       windowrule = [
+        # Transparency is deliberately terminal-only: the global opacity in
+        # `decoration` above is 1.0, and these two rules are the only windows
+        # that opt into it. $terminal plus the pyprland dropdown, which is the
+        # same binary launched under its own class.
+        "opacity 0.7 0.7, match:class ^Alacritty$"
+        "opacity 0.7 0.7, match:class ^terminal-dropterm$"
+
+        # Media viewers: float and size them. They no longer need `opaque on`,
+        # since nothing makes them transparent in the first place.
         "float on, match:title .*mpv$"
-        "opaque on, match:title .*mpv$"
         "size 50% 50%, match:title .*mpv$"
         "float on, match:content 2"
-        "opaque on, match:content 2"
         "size 50% 50%, match:content 2"
 
         "float on, match:title .*imv.*"
-        "opaque on, match:title .*imv.*"
         "size 70% 70%, match:title .*imv.*"
         "float on, match:content 1"
-        "opaque on, match:content 1"
         "size 70% 70%, match:content 1"
 
         "float on, match:title .*\\.pdf$"
-        "opaque on, match:title .*\\.pdf$"
         "maximize on, match:title .*\\.pdf$"
 
-        "opaque on, match:title swappy"
         "center on, match:title swappy"
         "stay_focused on, match:title swappy"
 

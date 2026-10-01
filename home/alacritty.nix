@@ -8,8 +8,9 @@
         padding = { x = 10; y = 10; };
         decorations = "full";
         dynamic_title = true;
-        # Hyprland applies window opacity itself (decoration.active_opacity),
-        # so the terminal stays fully opaque here.
+        # Hyprland applies the terminal opacity itself (the `opacity` windowrule
+        # in home/hyprland.nix), so alacritty stays fully opaque here. Setting
+        # it in both places would multiply the two factors together.
         opacity = 1.0;
         startup_mode = "Windowed";
         dimensions = { columns = 80; lines = 24; };
