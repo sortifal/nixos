@@ -137,8 +137,10 @@ in
 
   # The FortiClient GUI is an Electron app run through nix-ld (its launcher
   # sets NIX_LD*), so it only sees libraries listed here. libgbm is not
-  # provided by the forticlient module. This list merges with the module's own.
-  programs.nix-ld.libraries = [ pkgs.libgbm ];
+  # provided by the forticlient module. libGL (libglvnd) is needed by Chromium's
+  # EGL/ANGLE init, which otherwise fails with "Could not dlopen libGL.so.1".
+  # This list merges with the module's own.
+  programs.nix-ld.libraries = [ pkgs.libgbm pkgs.libGL pkgs.libglvnd ];
 
   security.polkit.enable = true;
 
