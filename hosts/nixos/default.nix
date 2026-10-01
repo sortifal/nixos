@@ -142,6 +142,14 @@ in
   # This list merges with the module's own.
   programs.nix-ld.libraries = [ pkgs.libgbm pkgs.libGL pkgs.libglvnd ];
 
+  # Electron/GTK apps (the FortiClient GUI) abort file-dialog and settings
+  # lookups with "g_settings_schema_source_lookup: assertion 'source != NULL'
+  # failed" when no compiled GSettings schemas are reachable through
+  # XDG_DATA_DIRS. Install the common schemas system-wide and link them into
+  # /run/current-system/sw/share so every app finds them.
+  programs.dconf.enable = true;
+  environment.pathsToLink = [ "/share/glib-2.0/schemas" ];
+
   security.polkit.enable = true;
 
   environment.sessionVariables = {
@@ -266,6 +274,8 @@ in
 
   # System packages
   environment.systemPackages = with pkgs; [
+    gsettings-desktop-schemas
+    gtk3
     vim
     alacritty
     git
