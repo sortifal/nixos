@@ -247,11 +247,12 @@ in
     };
   };
 
-  # claude-code is unfree. Allow it by name rather than setting
-  # allowUnfree globally, so anything else unfree still has to be opted in.
-  # This predicate is shared with the unstable import above via config.nixpkgs.
+  # claude-code and forticlient are unfree. Allow them by name rather than
+  # setting allowUnfree globally, so anything else unfree still has to be
+  # opted in. This predicate is shared with the unstable import above via
+  # config.nixpkgs.
   nixpkgs.config.allowUnfreePredicate =
-    pkg: builtins.elem (lib.getName pkg) [ "claude-code" ];
+    pkg: builtins.elem (lib.getName pkg) [ "claude-code" "forticlient" ];
 
   # System packages
   environment.systemPackages = with pkgs; [
@@ -279,6 +280,7 @@ in
     starship
     yubikey-manager
     yubioath-flutter
+    teams-for-linux # unofficial Microsoft Teams client (Electron wrapper)
 
     # WireGuard: the kernel module ships with the kernel, so only the
     # userspace tooling (wg, wg-quick) is needed. Tunnels are managed either
