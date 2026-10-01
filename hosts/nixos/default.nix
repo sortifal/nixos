@@ -280,6 +280,7 @@ in
     starship
     yubikey-manager
     yubioath-flutter
+    teams-for-linux # unofficial Microsoft Teams client (Electron wrapper)
 
     # WireGuard: the kernel module ships with the kernel, so only the
     # userspace tooling (wg, wg-quick) is needed. Tunnels are managed either
