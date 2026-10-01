@@ -16,6 +16,10 @@
       # or the two get subtly different package sets.
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # FortiClient VPN packaged for NixOS; provides the nixosModules.forticlient
+    # module imported in hosts/nixos/default.nix.
+    forticlient-nixos.url = "github:jplana/forticlient-nixos";
   };
 
   outputs = { self, nixpkgs, ... }@inputs:
