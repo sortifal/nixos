@@ -18,6 +18,7 @@ in
 {
   imports = [
     inputs.home-manager.nixosModules.home-manager
+    inputs.forticlient-nixos.nixosModules.forticlient
     ../../home-manager.nix
     ./hardware-configuration.nix
   ];
@@ -41,6 +42,11 @@ in
   # commands available. Without this the very first build on a new machine has
   # to pass --extra-experimental-features by hand (see README).
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+  # FortiClient VPN. The gnome-keyring is unlocked at login through PAM; this
+  # host logs in via greetd, so that is the PAM service to hook.
+  services.forticlient.enable = true;
+  services.forticlient.gnomeKeyring.pamServices = [ "login" "greetd" ];
 
   # Time zone
   time.timeZone = "Europe/Amsterdam";
