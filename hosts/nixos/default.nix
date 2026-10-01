@@ -135,11 +135,6 @@ in
 
   hardware.graphics.enable = true;
 
-  # The FortiClient GUI is an Electron app run through nix-ld (its launcher
-  # sets NIX_LD*), so it only sees libraries listed here. libgbm is not
-  # provided by the forticlient module. This list merges with the module's own.
-  programs.nix-ld.libraries = [ pkgs.libgbm ];
-
   security.polkit.enable = true;
 
   environment.sessionVariables = {
@@ -157,10 +152,7 @@ in
 
   # YubiKey
   services.pcscd.enable = true;
-  # libfido2 ships 70-u2f.rules, which grants the logged-in user access to FIDO
-  # hidraw devices. Chromium/Electron (teams-for-linux) talks to the key over
-  # hidraw for WebAuthn, so without it the key is invisible to the app.
-  services.udev.packages = [ pkgs.yubikey-personalization pkgs.libfido2 ];
+  services.udev.packages = [ pkgs.yubikey-personalization ];
   hardware.gpgSmartcards.enable = true;
 
   # Sound
