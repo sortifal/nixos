@@ -135,6 +135,11 @@ in
 
   hardware.graphics.enable = true;
 
+  # The FortiClient GUI is an Electron app run through nix-ld (its launcher
+  # sets NIX_LD*), so it only sees libraries listed here. libgbm is not
+  # provided by the forticlient module. This list merges with the module's own.
+  programs.nix-ld.libraries = [ pkgs.libgbm ];
+
   security.polkit.enable = true;
 
   environment.sessionVariables = {
