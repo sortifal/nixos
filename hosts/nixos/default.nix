@@ -301,6 +301,9 @@ in
     yubikey-manager
     yubioath-flutter
     teams-for-linux # unofficial Microsoft Teams client (Electron wrapper)
+    # MS Word has no native Linux build and isn't in nixpkgs; LibreOffice
+    # Writer is the closest option and opens/saves .docx.
+    libreoffice-fresh
 
     # WireGuard: the kernel module ships with the kernel, so only the
     # userspace tooling (wg, wg-quick) is needed. Tunnels are managed either
