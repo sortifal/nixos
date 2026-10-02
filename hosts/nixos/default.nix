@@ -213,6 +213,7 @@ in
   # Catppuccin Macchiato in the TTY, to match the desktop theme.
   console = {
     earlySetup = true;
+    keyMap = "sg"; # Swiss German QWERTZ in the TTY
     colors = [
       "24273a"
       "ed8796"

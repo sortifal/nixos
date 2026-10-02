@@ -20,8 +20,8 @@
 
   outputs = { self, nixpkgs, ... }@inputs:
     let
-      # Every host is one directory under ./hosts holding default.nix. The
-      # machine-local /etc/nixos/hardware-configuration.nix is not in the repo. Adding a machine is a new directory
+      # Every host is one directory under ./hosts holding default.nix and its
+      # own (git-ignored) hardware-configuration.nix. Adding a machine is a new directory
       # plus a line below - nothing else in the repo has to change.
       mkHost = { hostname, system ? "x86_64-linux" }:
         nixpkgs.lib.nixosSystem {

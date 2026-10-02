@@ -1,6 +1,10 @@
 # Claude Code's per-machine settings
 .claude/settings.local.json
 
+# Generated per machine by nixos-generate-config; not committed. Git-based flake
+# refs skip ignored files, so build with a path: flake ref (see README).
+hosts/*/hardware-configuration.nix
+
 # WSL/NTFS alternate data streams, created when a file is copied in from Windows
 *:Zone.Identifier
 
