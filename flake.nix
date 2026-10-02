@@ -16,16 +16,12 @@
       # or the two get subtly different package sets.
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # FortiClient VPN packaged for NixOS; provides the nixosModules.forticlient
-    # module imported in hosts/nixos/default.nix.
-    forticlient-nixos.url = "github:jplana/forticlient-nixos";
   };
 
   outputs = { self, nixpkgs, ... }@inputs:
     let
-      # Every host is one directory under ./hosts holding default.nix and its
-      # own hardware-configuration.nix. Adding a machine is a new directory
+      # Every host is one directory under ./hosts holding default.nix. The
+      # machine-local /etc/nixos/hardware-configuration.nix is not in the repo. Adding a machine is a new directory
       # plus a line below - nothing else in the repo has to change.
       mkHost = { hostname, system ? "x86_64-linux" }:
         nixpkgs.lib.nixosSystem {

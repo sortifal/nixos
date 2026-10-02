@@ -3,3 +3,6 @@
 
 # WSL/NTFS alternate data streams, created when a file is copied in from Windows
 *:Zone.Identifier
+
+# Generated per machine by nixos-generate-config; never committed
+hardware-configuration.nix

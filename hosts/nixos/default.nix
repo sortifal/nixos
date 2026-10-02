@@ -1,6 +1,6 @@
 # System configuration for the `nixos` host: a Hyprland (Wayland) desktop on an
 # AMD laptop. Everything host-specific lives here and in
-# ./hardware-configuration.nix; the user environment is in ../../home.
+# /etc/nixos/hardware-configuration.nix (not in this repo); the user environment is in ../../home.
 # See ../../README.md for how to build this on a new machine.
 
 { config, lib, pkgs, inputs, ... }:
@@ -18,9 +18,10 @@ in
 {
   imports = [
     inputs.home-manager.nixosModules.home-manager
-    inputs.forticlient-nixos.nixosModules.forticlient
     ../../home-manager.nix
-    ./hardware-configuration.nix
+    # Generated per machine and deliberately not committed. An absolute path
+    # means the build must be run with --impure (see README).
+    /etc/nixos/hardware-configuration.nix
   ];
 
   # Boot configuration
@@ -42,11 +43,6 @@ in
   # commands available. Without this the very first build on a new machine has
   # to pass --extra-experimental-features by hand (see README).
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
-  # FortiClient VPN. The gnome-keyring is unlocked at login through PAM; this
-  # host logs in via greetd, so that is the PAM service to hook.
-  services.forticlient.enable = true;
-  services.forticlient.gnomeKeyring.pamServices = [ "login" "greetd" ];
 
   # Time zone
   time.timeZone = "Europe/Amsterdam";
@@ -135,14 +131,7 @@ in
 
   hardware.graphics.enable = true;
 
-  # The FortiClient GUI is an Electron app run through nix-ld (its launcher
-  # sets NIX_LD*), so it only sees libraries listed here. libgbm is not
-  # provided by the forticlient module. libGL (libglvnd) is needed by Chromium's
-  # EGL/ANGLE init, which otherwise fails with "Could not dlopen libGL.so.1".
-  # This list merges with the module's own.
-  programs.nix-ld.libraries = [ pkgs.libgbm pkgs.libGL pkgs.libglvnd ];
-
-  # Electron/GTK apps (the FortiClient GUI) abort file-dialog and settings
+  # Electron/GTK apps abort file-dialog and settings
   # lookups with "g_settings_schema_source_lookup: assertion 'source != NULL'
   # failed" when no compiled GSettings schemas are reachable through
   # XDG_DATA_DIRS. Install the common schemas system-wide and link them into
@@ -265,12 +254,12 @@ in
     };
   };
 
-  # claude-code and forticlient are unfree. Allow them by name rather than
+  # claude-code is unfree. Allow it by name rather than
   # setting allowUnfree globally, so anything else unfree still has to be
   # opted in. This predicate is shared with the unstable import above via
   # config.nixpkgs.
   nixpkgs.config.allowUnfreePredicate =
-    pkg: builtins.elem (lib.getName pkg) [ "claude-code" "forticlient" ];
+    pkg: builtins.elem (lib.getName pkg) [ "claude-code" ];
 
   # System packages
   environment.systemPackages = with pkgs; [
