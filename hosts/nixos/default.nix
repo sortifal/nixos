@@ -162,6 +162,30 @@ in
   services.udev.packages = [ pkgs.yubikey-personalization pkgs.libfido2 ];
   hardware.gpgSmartcards.enable = true;
 
+  # FIDO2/U2F login via pam_u2f.
+  #
+  # control = "sufficient" means a touch on the key is enough, but the password
+  # prompt still follows if the key is absent or not enrolled, so this cannot
+  # lock you out. Switch to "required" only for key-AND-password 2FA.
+  #
+  # Keys are registered per user and are not stored in this repo. Run once
+  # per key, with the key plugged in:
+  #   mkdir -p ~/.config/Yubico
+  #   pamu2fcfg > ~/.config/Yubico/u2f_keys
+  # and for a backup key:  pamu2fcfg -n >> ~/.config/Yubico/u2f_keys
+  security.pam.u2f = {
+    enable = true;
+    control = "sufficient";
+    settings.cue = true; # print "Please touch the device" instead of hanging silently
+  };
+  security.pam.services = {
+    greetd.u2fAuth = true;    # tuigreet login
+    login.u2fAuth = true;     # TTY login
+    sudo.u2fAuth = true;
+    hyprlock.u2fAuth = true;  # lock screen unlock
+    polkit-1.u2fAuth = true;  # graphical privilege prompts
+  };
+
   # Sound
   services.pipewire = {
     enable = true;
