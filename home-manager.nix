@@ -32,6 +32,7 @@
       ./home/rofi.nix
       ./home/notifications.nix
       ./home/wlogout.nix
+      ./home/worktime.nix
     ];
 
     programs.home-manager.enable = true;
