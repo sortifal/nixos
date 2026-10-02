@@ -93,8 +93,9 @@ in
       ];
 
       input = {
-        # Upstream cycles us/ua/ru with SUPER+Space; only US is configured here.
-        kb_layout = "us";
+        # Swiss German QWERTZ.
+        kb_layout = "ch";
+        kb_variant = "de";
         follow_mouse = 1;
         sensitivity = 0;
         touchpad = {
