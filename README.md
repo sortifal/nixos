@@ -14,7 +14,7 @@ flake.lock                exact input revisions — commit every change to it
 hosts/
   nixos/
     default.nix           system config for the host named `nixos`
-    hardware-configuration.nix   generated per machine, committed
+    hardware-configuration.nix   generated per machine, git-ignored
 home-manager.nix          home-manager wiring + the list of user modules
 home/                     the user environment, one file per program
 wallpaper.jpg             installed to ~/Pictures and used by hyprpaper/hyprlock
@@ -26,18 +26,20 @@ wallpaper.jpg             installed to ~/Pictures and used by hyprpaper/hyprlock
 ## Rebuild on this machine
 
 ```sh
-sudo nixos-rebuild switch --flake /etc/nixos#nixos
+sudo nixos-rebuild switch --flake path:/etc/nixos#nixos
 ```
 
 The flake only sees files git knows about, so `git add` a new file *before*
-rebuilding or Nix will report it as missing.
+rebuilding or Nix will report it as missing. The exception is the git-ignored
+`hardware-configuration.nix`, which git-based flake refs skip entirely, so
+build with `path:` instead (as below).
 
 Update the pinned inputs:
 
 ```sh
 nix flake update                  # all inputs
 nix flake update nixpkgs-unstable # just one
-sudo nixos-rebuild switch --flake /etc/nixos#nixos
+sudo nixos-rebuild switch --flake path:/etc/nixos#nixos
 ```
 
 ## Set up on a new machine
@@ -73,7 +75,8 @@ sudo nixos-rebuild switch --flake /etc/nixos#nixos
    Reusing the existing hostname instead? Just drop that machine's
    `hardware-configuration.nix` into `hosts/nixos/` and skip this step.
 
-4. Commit, since the flake reads from git:
+4. Commit, since the flake reads from git (the git-ignored hardware config is
+   picked up by the `path:` ref in the next step):
 
    ```sh
    sudo git add -A && sudo git commit -m "Add host $HOST"
@@ -85,10 +88,10 @@ sudo nixos-rebuild switch --flake /etc/nixos#nixos
    ```sh
    sudo nixos-rebuild switch \
      --extra-experimental-features 'nix-command flakes' \
-     --flake /etc/nixos#$HOST
+     --flake path:/etc/nixos#$HOST
    ```
 
-   Later rebuilds need only `sudo nixos-rebuild switch --flake /etc/nixos#$HOST`.
+   Later rebuilds need only `sudo nixos-rebuild switch --flake path:/etc/nixos#$HOST`.
 
 6. Log in as `sorti` with the password from `initialPassword` and change it
    with `passwd`. The home-manager generation activates on first login;
