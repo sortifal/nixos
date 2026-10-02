@@ -14,7 +14,6 @@ flake.lock                exact input revisions — commit every change to it
 hosts/
   nixos/
     default.nix           system config for the host named `nixos`
-    hardware-configuration.nix   generated per machine, git-ignored
 home-manager.nix          home-manager wiring + the list of user modules
 home/                     the user environment, one file per program
 wallpaper.jpg             installed to ~/Pictures and used by hyprpaper/hyprlock
@@ -26,8 +25,11 @@ wallpaper.jpg             installed to ~/Pictures and used by hyprpaper/hyprlock
 ## Rebuild on this machine
 
 ```sh
-sudo nixos-rebuild switch --flake path:/etc/nixos#nixos
+sudo nixos-rebuild switch --impure --flake /etc/nixos#nixos
 ```
+
+`--impure` is needed because the machine's `hardware-configuration.nix` is not
+in this repo; it is imported from `/etc/nixos/hardware-configuration.nix`.
 
 The flake only sees files git knows about, so `git add` a new file *before*
 rebuilding or Nix will report it as missing. The exception is the git-ignored
@@ -51,14 +53,16 @@ sudo nixos-rebuild switch --flake path:/etc/nixos#nixos
    ```sh
    sudo mv /etc/nixos /etc/nixos.orig
    sudo git clone <this-repo> /etc/nixos
+   sudo cp /etc/nixos.orig/hardware-configuration.nix /etc/nixos/
    ```
+
+   The file is gitignored and stays local to the machine.
 
 3. Add the new host. Pick a hostname, then:
 
    ```sh
    HOST=laptop2
    sudo mkdir -p /etc/nixos/hosts/$HOST
-   sudo cp /etc/nixos.orig/hardware-configuration.nix /etc/nixos/hosts/$HOST/
    sudo cp /etc/nixos/hosts/nixos/default.nix /etc/nixos/hosts/$HOST/
    ```
 
@@ -72,8 +76,7 @@ sudo nixos-rebuild switch --flake path:/etc/nixos#nixos
    };
    ```
 
-   Reusing the existing hostname instead? Just drop that machine's
-   `hardware-configuration.nix` into `hosts/nixos/` and skip this step.
+   Reusing the existing hostname instead? Skip this step.
 
 4. Commit, since the flake reads from git (the git-ignored hardware config is
    picked up by the `path:` ref in the next step):
@@ -87,6 +90,7 @@ sudo nixos-rebuild switch --flake path:/etc/nixos#nixos
 
    ```sh
    sudo nixos-rebuild switch \
+     --impure \
      --extra-experimental-features 'nix-command flakes' \
      --flake path:/etc/nixos#$HOST
    ```
