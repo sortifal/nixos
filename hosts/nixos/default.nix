@@ -38,6 +38,8 @@ in
   #   sudo nixos-rebuild switch --flake /etc/nixos#nixos
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
+  # Fortinet SSL VPN support in NetworkManager (nm-applet / nmcli)
+  networking.networkmanager.plugins = [ pkgs.networkmanager-fortisslvpn ];
 
   # This configuration is a flake, so the nix that rebuilds it needs the flake
   # commands available. Without this the very first build on a new machine has
@@ -297,6 +299,7 @@ in
     brightnessctl
     pamixer
     networkmanagerapplet
+    openfortivpn # Fortinet SSL VPN client (CLI)
     blueman
     bluetuith    # TUI bluetooth manager
     alsa-utils   # amixer/arecord — the layer pamixer and wpctl can't see
