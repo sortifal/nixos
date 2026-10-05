@@ -307,6 +307,7 @@ in
     unzip
     ripgrep
     fd
+    gh
     ranger
     imagemagick
     conky
