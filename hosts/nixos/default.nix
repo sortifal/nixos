@@ -285,7 +285,7 @@ in
   # config.nixpkgs.
   nixpkgs.config.allowUnfreePredicate =
     pkg: builtins.elem (lib.getName pkg) [ "claude-code" ];
-
+  environment.sessionVariables.PATH = [ "$HOME/.local/bin" ];
   # System packages
   environment.systemPackages = with pkgs; [
     gsettings-desktop-schemas
