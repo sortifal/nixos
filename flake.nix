@@ -10,6 +10,11 @@
     # stable release; see the `unstable` binding in hosts/nixos/default.nix.
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
+    tsh-functions = {
+     url = "path:/home/sorti/hk/tsh-functions";
+     inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
       # home-manager must evaluate against the same nixpkgs as the system,
@@ -38,7 +43,12 @@
 
       # `nix develop` - tooling for the machine setup scripts (scripts/post_deploy).
       devShells.x86_64-linux.default =
-        let pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        let
+          # vault is BSL-licensed (unfree in nixpkgs); allow only that package.
+          pkgs = import nixpkgs {
+            system = "x86_64-linux";
+            config.allowUnfreePredicate = pkg: (nixpkgs.lib.getName pkg) == "vault";
+          };
         in pkgs.mkShell {
           name = "nix-ansible";
           packages = with pkgs; [
@@ -48,6 +58,7 @@
             jq
             teleport # provides tsh and tctl
             ansible
+            vault
           ];
         };
     };
