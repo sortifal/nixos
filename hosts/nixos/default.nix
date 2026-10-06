@@ -12,7 +12,7 @@ let
   # allowUnfree is inherited so unfree packages (claude-code) resolve here too.
   unstable = import inputs.nixpkgs-unstable {
     inherit (config.nixpkgs) config;
-    inherit (pkgs) system;
+    system = pkgs.stdenv.hostPlatform.system;
   };
 in
 {
@@ -81,7 +81,7 @@ in
     enable = true;
     settings.default_session = {
       command = lib.concatStringsSep " " [
-        "${pkgs.greetd.tuigreet}/bin/tuigreet"
+        "${pkgs.tuigreet}/bin/tuigreet"
         "--time"
         "--remember"
         "--remember-session"
@@ -313,7 +313,7 @@ in
     conky
     opencode
     unstable.claude-code # latest version from nixpkgs-unstable
-    inputs.tsh-functions.packages.${pkgs.system}.default
+    inputs.tsh-functions.packages.${pkgs.stdenv.hostPlatform.system}.default
     starship
     yubikey-manager
     yubioath-flutter
