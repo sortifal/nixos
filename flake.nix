@@ -10,6 +10,11 @@
     # stable release; see the `unstable` binding in hosts/nixos/default.nix.
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
+    tsh-functions = {
+     url = "path:/home/sorti/hk/tsh-functions";
+     inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
       # home-manager must evaluate against the same nixpkgs as the system,

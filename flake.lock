@@ -57,7 +57,25 @@
       "inputs": {
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
-        "nixpkgs-unstable": "nixpkgs-unstable"
+        "nixpkgs-unstable": "nixpkgs-unstable",
+        "tsh-functions": "tsh-functions"
+      }
+    },
+    "tsh-functions": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1791286858,
+        "narHash": "sha256-AMrwuUeSTe6R6bmE8aGrgU+wXxG+LJ4rLpkWG8Lk9n8=",
+        "path": "/home/sorti/hk/tsh-functions",
+        "type": "path"
+      },
+      "original": {
+        "path": "/home/sorti/hk/tsh-functions",
+        "type": "path"
       }
     }
   },

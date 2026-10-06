@@ -313,6 +313,7 @@ in
     conky
     opencode
     unstable.claude-code # latest version from nixpkgs-unstable
+    inputs.tsh-functions.packages.${pkgs.system}.default
     starship
     yubikey-manager
     yubioath-flutter
