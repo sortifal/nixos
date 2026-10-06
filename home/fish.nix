@@ -41,9 +41,9 @@
     };
 
     functions.nix = {
-      description = "nix, plus `nix ansible` to enter the post_deploy dev shell";
+      description = "nix, plus `nix hk` to enter the post_deploy dev shell";
       body = ''
-        if test "$argv[1]" = ansible
+        if test "$argv[1]" = hk
           command nix develop /etc/nixos -c fish $argv[2..-1]
         else
           command nix $argv

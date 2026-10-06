@@ -47,6 +47,7 @@
             go-task
             jq
             tctl
+            teleport # provides tsh
             ansible
           ];
         };
