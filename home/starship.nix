@@ -8,7 +8,7 @@
     enableFishIntegration = true;
     settings = {
       add_newline = false;
-      format = "$directory$git_branch$git_status$nodejs$python$rust$nix_shell$cmd_duration$line_break$character";
+      format = "$directory$git_branch$git_status$nodejs$python$rust${custom.hk}$nix_shell$cmd_duration$line_break$character";
       character = {
         success_symbol = "[>](bold green)";
         error_symbol = "[>](bold red)";
@@ -22,6 +22,11 @@
       git_status = { style = "bold red"; };
       cmd_duration = { min_time = 2000; format = "took [$duration](bold yellow) "; };
       nix_shell = { symbol = "❄ "; format = "[$symbol$state]($style) "; };
+      custom.hk = {
+        when = ''test -n "$HK_SHELL"'';
+        symbol = "hk";
+        format = "[\\[$symbol\\]](bold yellow) ";
+      };
       palette = "macchiato";
       palettes.macchiato = {
         cyan = "#8bd5ca";
