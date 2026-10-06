@@ -35,5 +35,19 @@
       nixosConfigurations = {
         nixos = mkHost { hostname = "nixos"; };
       };
+
+      # `nix develop` - tooling for the machine setup scripts (scripts/post_deploy).
+      devShells.x86_64-linux.default =
+        let pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        in pkgs.mkShell {
+          packages = with pkgs; [
+            python312
+            uv
+            go-task
+            jq
+            tctl
+            ansible
+          ];
+        };
     };
 }
