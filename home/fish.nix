@@ -40,6 +40,17 @@
       vi  = "nvim";
     };
 
+    functions.nix = {
+      description = "nix, plus `nix hk` to enter the post_deploy dev shell";
+      body = ''
+        if test "$argv[1]" = hk
+          command nix develop /etc/nixos -c fish $argv[2..-1]
+        else
+          command nix $argv
+        end
+      '';
+    };
+
     shellInit = ''
       function fish_user_key_bindings
         bind \cv 'fish_clipboard_paste'
