@@ -38,7 +38,12 @@
 
       # `nix develop` - tooling for the machine setup scripts (scripts/post_deploy).
       devShells.x86_64-linux.default =
-        let pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        let
+          # vault is BSL-licensed (unfree in nixpkgs); allow only that package.
+          pkgs = import nixpkgs {
+            system = "x86_64-linux";
+            config.allowUnfreePredicate = pkg: (nixpkgs.lib.getName pkg) == "vault";
+          };
         in pkgs.mkShell {
           name = "nix-ansible";
           packages = with pkgs; [
@@ -48,6 +53,7 @@
             jq
             teleport # provides tsh and tctl
             ansible
+            vault
           ];
         };
     };
