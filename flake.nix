@@ -46,8 +46,7 @@
             uv
             go-task
             jq
-            tctl
-            teleport # provides tsh
+            teleport # provides tsh and tctl
             ansible
           ];
         };
