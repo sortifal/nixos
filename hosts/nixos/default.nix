@@ -291,6 +291,7 @@ in
     gsettings-desktop-schemas
     gtk3
     vim
+    neovim
     alacritty
     git
     wget
