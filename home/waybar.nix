@@ -1,16 +1,20 @@
 # Single top-bar Waybar layout: workspaces/taskbar and system meters live in
 # one bar instead of being split across separate top/bottom/left bars.
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 
 let
   scripts = import ./hypr-scripts.nix { inherit pkgs; };
 in
 {
+  # Restart even on a clean exit, which waybar does when its output goes away.
+  systemd.user.services.waybar.Service.Restart = lib.mkForce "always";
+
   programs.waybar = {
     enable = true;
-    # Started from Hyprland's exec-once rather than a systemd unit, so it comes
-    # up with the compositor even outside a systemd-managed session.
-    systemd.enable = false;
+    # Runs as a user unit bound to graphical-session.target (brought up by
+    # UWSM) so systemd restarts it. Under a bare exec-once, waybar crashing or
+    # exiting on the output changes around lock/unlock/DPMS left no bar at all.
+    systemd.enable = true;
 
     settings = [
       {

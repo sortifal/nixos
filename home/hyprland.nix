@@ -76,7 +76,6 @@ in
       monitor = [ ",preferred,auto,1" ];
 
       exec-once = [
-        "waybar"
         "${pypr}"
         "${pkgs.avizo}/bin/avizo-service"
         "${pkgs.wl-clipboard}/bin/wl-paste --type text --watch ${pkgs.cliphist}/bin/cliphist store"
