@@ -1,6 +1,6 @@
 # GTK / Qt / cursor theming to match the Catppuccin Macchiato + teal accent the
 # upstream config uses everywhere.
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 
 let
   catppuccinGtk = pkgs.catppuccin-gtk.override {
@@ -23,6 +23,10 @@ in
       name = "Numix-Circle";
       package = pkgs.numix-icon-theme-circle;
     };
+
+    # Keep the legacy default (GTK4 follows the GTK3 theme); silences the
+    # home.stateVersion < 26.05 warning.
+    gtk4.theme = config.gtk.theme;
 
     font = {
       name = "JetBrains Mono";
