@@ -52,7 +52,7 @@
         in pkgs.mkShell {
           name = "nix-ansible";
           packages = with pkgs; [
-            python312
+            (python312.withPackages (ps: [ ps.pydantic ps.uritools ]))
             uv
             go-task
             jq
