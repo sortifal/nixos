@@ -19,7 +19,7 @@
   home-manager.users.sorti = { pkgs, ... }: {
     home.username = "sorti";
     home.homeDirectory = "/home/sorti";
-    home.stateVersion = "25.11";
+    home.stateVersion = "26.05";
 
     imports = [
       ./home/firefox.nix

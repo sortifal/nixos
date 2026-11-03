@@ -52,7 +52,7 @@
       nvim-autopairs
     ];
 
-    extraLuaConfig = ''
+    initLua = ''
       vim.g.mapleader = " "
 
       local o = vim.opt
