@@ -162,6 +162,10 @@ in
   services.udev.packages = [ pkgs.yubikey-personalization pkgs.libfido2 ];
   hardware.gpgSmartcards.enable = true;
 
+  # GPG signing with YubiKey
+  programs.gnupg.agent.enable = true;
+  programs.gnupg.agent.enableSSHSupport = true;
+
   # FIDO2/U2F login via pam_u2f.
   #
   # control = "sufficient" means a touch on the key is enough, but the password
@@ -223,11 +227,14 @@ in
   # Fish shell
   programs.fish.enable = true;
 
+  # Docker
+  virtualisation.docker.enable = true;
+
   # User account
   users.users.sorti = {
     description = "Sorti-";
     isNormalUser = true;
-    extraGroups = [ "networkmanager" "wheel" "audio" "video" "plugdev" ];
+    extraGroups = [ "networkmanager" "wheel" "audio" "video" "plugdev" "docker" "smartcard" ];
     shell = pkgs.fish;
     # Only applied when the account is first created, i.e. on a fresh install.
     # Change it with `passwd` after the first login - this repo is public.
@@ -291,7 +298,6 @@ in
     gsettings-desktop-schemas
     gtk3
     vim
-    neovim
     alacritty
     git
     wget
@@ -318,6 +324,9 @@ in
     starship
     yubikey-manager
     yubioath-flutter
+    docker
+    docker-compose
+    pinentry-curses
     teams-for-linux # unofficial Microsoft Teams client (Electron wrapper)
     # MS Word has no native Linux build and isn't in nixpkgs; LibreOffice
     # Writer is the closest option and opens/saves .docx.
@@ -334,5 +343,5 @@ in
     qt6.qtwayland
   ];
 
-  system.stateVersion = "25.11";
+  system.stateVersion = "26.05";
 }
