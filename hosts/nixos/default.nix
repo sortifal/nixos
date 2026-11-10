@@ -162,9 +162,25 @@ in
   services.udev.packages = [ pkgs.yubikey-personalization pkgs.libfido2 ];
   hardware.gpgSmartcards.enable = true;
 
-  # GPG signing with YubiKey
-  programs.gnupg.agent.enable = true;
-  programs.gnupg.agent.enableSSHSupport = true;
+  # GPG signing with YubiKey. One socket-activated gpg-agent per user session
+  # serves every terminal, editor and ssh client.
+  #
+  # pinentry-gnome3 shows the PIN prompt as a window, so it works from places
+  # without a usable tty (git commit from neovim/lazygit, ssh started from
+  # another terminal), where pinentry-curses fails or prompts in the wrong
+  # terminal. It falls back to curses when there is no graphical session.
+  programs.gnupg.agent = {
+    enable = true;
+    enableSSHSupport = true;
+    pinentryPackage = pkgs.pinentry-gnome3;
+    # Enter the PIN once per workday rather than every 10 minutes.
+    settings = {
+      default-cache-ttl = 28800;
+      max-cache-ttl = 28800;
+      default-cache-ttl-ssh = 28800;
+      max-cache-ttl-ssh = 28800;
+    };
+  };
 
   # FIDO2/U2F login via pam_u2f.
   #
