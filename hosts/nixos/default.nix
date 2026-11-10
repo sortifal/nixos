@@ -246,11 +246,13 @@ in
   # Docker
   virtualisation.docker.enable = true;
 
+  networking.firewall.trustedInterfaces = [ "virbr+" ];
+
   # User account
   users.users.sorti = {
     description = "Sorti-";
     isNormalUser = true;
-    extraGroups = [ "networkmanager" "wheel" "audio" "video" "plugdev" "docker" "smartcard" ];
+    extraGroups = [ "libvirtd"  "networkmanager" "wheel" "audio" "video" "plugdev" "docker" "smartcard" ];
     shell = pkgs.fish;
     # Only applied when the account is first created, i.e. on a fresh install.
     # Change it with `passwd` after the first login - this repo is public.
@@ -301,6 +303,20 @@ in
       };
     };
   };
+
+  virtualisation.libvirtd = {
+    enable = true;
+    qemu.verbatimConfig =  ''
+      namespaces = []
+      nvram = [ "/usr/share/OVMF/OVMF_CODE_4M.fd:/usr/share/OVMF/OVMF_VARS_4M.fd" ]
+    '';
+  };
+
+  systemd.tmpfiles.rules = [
+    "d /usr/share/OVMF 0755 root root -"
+    "L+ /usr/share/OVMF/OVMF_CODE_4M.fd - - - - ${pkgs.qemu}/share/qemu/edk2-x86_64-code.fd"
+    "L+ /usr/share/OVMF/OVMF_VARS_4M.fd - - - - ${pkgs.qemu}/share/qemu/edk2-i386-vars.fd"
+  ];
 
   # claude-code is unfree. Allow it by name rather than
   # setting allowUnfree globally, so anything else unfree still has to be

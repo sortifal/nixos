@@ -47,18 +47,29 @@
           # vault is BSL-licensed (unfree in nixpkgs); allow only that package.
           pkgs = import nixpkgs {
             system = "x86_64-linux";
-            config.allowUnfreePredicate = pkg: (nixpkgs.lib.getName pkg) == "vault";
+            config.allowUnfreePredicate = pkg: 
+		builtins.elem (nixpkgs.lib.getName pkg) [ "vault" "vagrant" ];
           };
         in pkgs.mkShell {
           name = "nix-ansible";
-          packages = with pkgs; [
-            (python312.withPackages (ps: [ ps.pydantic ps.uritools ]))
-            uv
+	  packages = with pkgs; [
+            (python3.withPackages (ps: with ps; [
+   	    ansible-core
+   	    hvac
+   	    pydantic
+   	    uritools
+   	  ]))            
+            vagrant
+	    uv
             go-task
             jq
             teleport # provides tsh and tctl
             ansible
             vault
+            libvirt
+            yq-go
+            sshpass
+            gnumake
           ];
         };
     };

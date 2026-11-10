@@ -113,5 +113,7 @@ sudo nixos-rebuild switch --flake path:/etc/nixos#nixos
   and the lock screen set their own alpha in their own CSS.
 - **Display manager** is greetd + tuigreet on a plain VT; the comment in
   `hosts/nixos/default.nix` explains why not SDDM.
+- **Neovim** keybindings (git, diffs, LSP, navigation) are in
+  [NEOVIM.md](NEOVIM.md).
 - **Hyprland** runs under UWSM, which is why home-manager's
   `wayland.windowManager.hyprland.systemd.enable` is off.
